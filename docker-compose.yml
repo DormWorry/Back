@@ -4,18 +4,18 @@ services:
     build: .
     container_name: nestjs_app
     ports:
-      - "3000:3000"
+      - '3001:3001'
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USERNAME=root
       - DB_PASSWORD=root
       - DB_NAME=dormitory_db
-      - JWT_SECRET=${JWT_SECRET}
-      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
-      - KAKAO_CALLBACK_URL=${KAKAO_CALLBACK_URL}
-      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET=0yFH+KgskOYKmG/+7pC8btfeBYFZaESsBECuTE7YVmY=
+      - KAKAO_CLIENT_ID=3690a2db2a794b9c48ee834b2ba49890
+      - KAKAO_CALLBACK_URL=http://localhost:3000/auth/callback
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
       - mysql
     volumes:
@@ -26,7 +26,7 @@ services:
     image: mysql:8.0
     container_name: mysql_db
     ports:
-      - "3306:3306"
+      - '3306:3306'
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=dormitory_db
