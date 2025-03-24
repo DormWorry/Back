@@ -28,6 +28,11 @@ interface ProfileUpdateDto {
   kakaoId?: string;
 }
 
+// 카카오 토큰 교환 DTO
+interface KakaoTokenExchangeDto {
+  code: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -52,6 +57,28 @@ export class AuthController {
     const redirectUrl = `${frontendUrl}/auth/callback?token=${token.access_token}&isNewUser=${user.isNewUser}`;
     
     return res.redirect(redirectUrl);
+  }
+
+  // 프론트엔드에서 카카오 인증 코드를 받아 토큰으로 교환
+  @Post('kakao/token')
+  async exchangeKakaoToken(@Body() body: KakaoTokenExchangeDto) {
+    const { code } = body;
+    
+    // 카카오 API와 코드 교환
+    const kakaoToken = await this.authService.getKakaoToken(code);
+    
+    // 카카오 사용자 정보 조회
+    const kakaoUser = await this.authService.getKakaoUserInfo(kakaoToken.access_token);
+    
+    // 사용자 찾기 또는 생성
+    const user = await this.authService.findOrCreateUserByKakaoId(
+      kakaoUser.id.toString(),
+      kakaoUser.properties.nickname,
+      kakaoUser.kakao_account?.email
+    );
+    
+    // JWT 토큰 생성
+    return this.authService.generateToken(user);
   }
 
   // 프로필 업데이트 (신규 사용자가 추가 정보 입력 후)

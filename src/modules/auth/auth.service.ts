@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -44,6 +45,46 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  // 카카오 인증 코드를 토큰으로 교환
+  async getKakaoToken(code: string) {
+    try {
+      const tokenUrl = 'https://kauth.kakao.com/oauth/token';
+      const params = new URLSearchParams();
+      params.append('grant_type', 'authorization_code');
+      params.append('client_id', process.env.KAKAO_CLIENT_ID);
+      params.append('redirect_uri', process.env.KAKAO_CALLBACK_URL);
+      params.append('code', code);
+
+      const response = await axios.post(tokenUrl, params.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('카카오 토큰 교환 오류:', error.response?.data || error.message);
+      throw new Error('카카오 토큰 교환 중 오류가 발생했습니다.');
+    }
+  }
+
+  // 카카오 사용자 정보 조회
+  async getKakaoUserInfo(accessToken: string) {
+    try {
+      const userInfoUrl = 'https://kapi.kakao.com/v2/user/me';
+      const response = await axios.get(userInfoUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('카카오 사용자 정보 조회 오류:', error.response?.data || error.message);
+      throw new Error('카카오 사용자 정보 조회 중 오류가 발생했습니다.');
+    }
   }
 
   // 사용자 정보 업데이트 (프로필 완성 후)
