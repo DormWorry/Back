@@ -16,11 +16,14 @@ async function bootstrap() {
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
 
-    // CORS 설정 추가
+    // CORS 설정 추가 - 개발 환경에서는 모든 오리진 허용
     app.enableCors({
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      origin: '*', // 모든 도메인에서 접근 허용
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
       credentials: true,
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     });
 
     // 모든 인터페이스에 바인딩하기 위해 '0.0.0.0' 추가
