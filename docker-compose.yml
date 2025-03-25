@@ -14,8 +14,8 @@ services:
       - DB_NAME=dormitory_db
       - JWT_SECRET=0yFH+KgskOYKmG/+7pC8btfeBYFZaESsBECuTE7YVmY=
       - KAKAO_CLIENT_ID=3690a2db2a794b9c48ee834b2ba49890
-      - KAKAO_CALLBACK_URL=http://localhost:3000/auth/callback
-      - FRONTEND_URL=http://localhost:3000
+      - KAKAO_CALLBACK_URL=https://ec2-15-164-169-65.ap-northeast-2.compute.amazonaws.com/auth/kakao/callback
+      - FRONTEND_URL=https://ec2-15-164-169-65.ap-northeast-2.compute.amazonaws.com
     depends_on:
       - mysql
     volumes:
