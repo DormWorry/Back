@@ -233,7 +233,8 @@ export class AuthController {
 
   // CORS 헤더 설정 헬퍼 메서드
   private setCorsHeaders(res: Response): void {
-    res.header('Access-Control-Allow-Origin', '*');
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.header('Access-Control-Allow-Origin', frontendUrl);
     res.header(
       'Access-Control-Allow-Methods',
       'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
