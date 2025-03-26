@@ -9,10 +9,11 @@ import {
   HttpStatus,
   HttpException,
   Header,
+  Options,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { User } from '../user/entities/user.entity';
 
 // 요청 객체 타입 정의
@@ -40,6 +41,22 @@ interface KakaoTokenExchangeDto {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // 모든 경로에 대한 OPTIONS 요청 처리
+  @Options('*')
+  handleOptions(@Res() res: Response) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    );
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin,X-Requested-With,Content-Type,Accept,Authorization',
+    );
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.sendStatus(204);
+  }
+
   // 카카오 로그인 시작
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
@@ -64,7 +81,7 @@ export class AuthController {
 
   // 프론트엔드에서 카카오 인증 코드를 받아 토큰으로 교환
   @Post('kakao/token')
-  @Header('Access-Control-Allow-Origin', 'http://localhost:3000')
+  @Header('Access-Control-Allow-Origin', '*')
   @Header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
   @Header(
     'Access-Control-Allow-Headers',
