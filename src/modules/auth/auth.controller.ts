@@ -8,6 +8,7 @@ import {
   Body,
   HttpStatus,
   HttpException,
+  Header,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -63,15 +64,25 @@ export class AuthController {
 
   // 프론트엔드에서 카카오 인증 코드를 받아 토큰으로 교환
   @Post('kakao/token')
-  async exchangeKakaoToken(@Body() body: KakaoTokenExchangeDto) {
+  @Header('Access-Control-Allow-Origin', 'http://localhost:3000')
+  @Header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+  @Header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+  )
+  @Header('Access-Control-Allow-Credentials', 'true')
+  async exchangeKakaoToken(
+    @Body() body: KakaoTokenExchangeDto,
+    @Res() res: Response,
+  ) {
     try {
       const { code } = body;
 
       if (!code) {
-        throw new HttpException(
-          '인증 코드가 필요합니다.',
-          HttpStatus.BAD_REQUEST,
-        );
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: '인증 코드가 필요합니다.',
+        });
       }
 
       // 카카오 API와 코드 교환
@@ -92,7 +103,7 @@ export class AuthController {
       // JWT 토큰 생성
       const token = this.authService.generateToken(user);
 
-      return {
+      return res.status(HttpStatus.OK).json({
         success: true,
         data: {
           accessToken: token.access_token,
@@ -103,7 +114,7 @@ export class AuthController {
             isNewUser: user.isNewUser,
           },
         },
-      };
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -114,7 +125,10 @@ export class AuthController {
           ? error.getStatus()
           : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      throw new HttpException(errorMessage, errorStatus);
+      return res.status(errorStatus).json({
+        success: false,
+        message: errorMessage,
+      });
     }
   }
 
