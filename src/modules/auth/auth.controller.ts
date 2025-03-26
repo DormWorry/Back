@@ -233,16 +233,9 @@ export class AuthController {
 
   // CORS 헤더 설정 헬퍼 메서드
   private setCorsHeaders(res: Response): void {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    res.header('Access-Control-Allow-Origin', frontendUrl);
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    );
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Origin,X-Requested-With,Content-Type,Accept,Authorization',
-    );
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Max-Age', '86400');
   }
