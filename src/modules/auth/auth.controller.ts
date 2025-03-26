@@ -8,7 +8,6 @@ import {
   Body,
   HttpStatus,
   HttpException,
-  Header,
   Options,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -44,17 +43,15 @@ export class AuthController {
   // 모든 경로에 대한 OPTIONS 요청 처리
   @Options('*')
   handleOptions(@Res() res: Response) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    );
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Origin,X-Requested-With,Content-Type,Accept,Authorization',
-    );
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.sendStatus(204);
+    this.setCorsHeaders(res);
+    return res.sendStatus(204);
+  }
+
+  // 카카오 토큰 엔드포인트에 대한 OPTIONS 요청 특별 처리
+  @Options('kakao/token')
+  handleKakaoTokenOptions(@Res() res: Response) {
+    this.setCorsHeaders(res);
+    return res.sendStatus(204);
   }
 
   // 카카오 로그인 시작
@@ -81,17 +78,13 @@ export class AuthController {
 
   // 프론트엔드에서 카카오 인증 코드를 받아 토큰으로 교환
   @Post('kakao/token')
-  @Header('Access-Control-Allow-Origin', '*')
-  @Header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
-  @Header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-  )
-  @Header('Access-Control-Allow-Credentials', 'true')
   async exchangeKakaoToken(
     @Body() body: KakaoTokenExchangeDto,
     @Res() res: Response,
   ) {
+    // CORS 헤더 설정
+    this.setCorsHeaders(res);
+
     try {
       const { code } = body;
 
@@ -133,6 +126,7 @@ export class AuthController {
         },
       });
     } catch (error) {
+      console.error('카카오 토큰 교환 오류:', error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -235,5 +229,20 @@ export class AuthController {
         },
       },
     };
+  }
+
+  // CORS 헤더 설정 헬퍼 메서드
+  private setCorsHeaders(res: Response): void {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    );
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin,X-Requested-With,Content-Type,Accept,Authorization',
+    );
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
   }
 }
