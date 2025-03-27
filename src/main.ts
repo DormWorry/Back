@@ -14,12 +14,14 @@ async function bootstrap() {
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
 
-    // CORS 설정 추가 - 모든 오리진 허용 및 OPTIONS 요청 처리 강화
+    // CORS 설정
     app.enableCors({
-      origin: '*', // 모든 출처 허용 (개발 환경용)
+      origin: ['http://localhost:3000', 'https://www.dormworry.p-e.kr'],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-      allowedHeaders: 'Content-Type,Accept,Authorization',
       credentials: true,
+      allowedHeaders: 'Content-Type, Accept, Authorization',
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     });
 
     // 모든 인터페이스에 바인딩하기 위해 '0.0.0.0' 추가
