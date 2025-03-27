@@ -57,7 +57,7 @@ __decorate([
     (0, typeorm_1.Column)({
         type: 'varchar',
         length: 50,
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "dormitoryId", void 0);

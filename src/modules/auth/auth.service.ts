@@ -8,7 +8,6 @@ import {
   KakaoTokenResponse,
   KakaoUserInfo,
 } from './interfaces/kakao.interfaces';
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -70,7 +69,6 @@ export class AuthService {
       params.append('client_id', process.env.KAKAO_CLIENT_ID || '');
       params.append('redirect_uri', process.env.KAKAO_CALLBACK_URL || '');
       params.append('code', code);
-
       const response = await axios.post<KakaoTokenResponse>(
         tokenUrl,
         params.toString(),

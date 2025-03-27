@@ -16,7 +16,7 @@ async function bootstrap() {
 
     // CORS 설정 추가 - 모든 오리진 허용 및 OPTIONS 요청 처리 강화
     app.enableCors({
-      origin: true, // 모든 도메인에서 접근 허용
+      origin: 'http://localhost:3000', // 로컬 프론트엔드 서버 허용
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
       credentials: true,

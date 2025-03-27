@@ -29,9 +29,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.usersRepository = usersRepository;
     }
     async validate(payload) {
-        const user = await this.usersRepository.findOne({
-            where: { id: payload.sub }
-        });
+        const user = await this.usersRepository.findOneBy({ id: payload.sub });
         if (!user) {
             throw new Error('User not found');
         }

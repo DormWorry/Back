@@ -87,7 +87,7 @@ export class AuthController {
 
     try {
       const { code } = body;
-
+      console.log(code);
       if (!code) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -136,6 +136,7 @@ export class AuthController {
           ? error.getStatus()
           : HttpStatus.INTERNAL_SERVER_ERROR;
 
+      this.setCorsHeaders(res);
       return res.status(errorStatus).json({
         success: false,
         message: errorMessage,
@@ -233,10 +234,21 @@ export class AuthController {
 
   // CORS 헤더 설정 헬퍼 메서드
   private setCorsHeaders(res: Response): void {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', '*');
-    res.header('Access-Control-Allow-Headers', '*');
+    // 로컬 환경 허용
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    // 모든 HTTP 메서드 허용
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS',
+    );
+    // 모든 헤더 허용
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    );
+    // 인증 정보 포함 여부
     res.header('Access-Control-Allow-Credentials', 'true');
+    // 프리플라이트 요청 캐시 시간
     res.header('Access-Control-Max-Age', '86400');
   }
 }
