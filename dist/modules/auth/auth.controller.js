@@ -41,12 +41,13 @@ let AuthController = class AuthController {
     async exchangeKakaoToken(body, res) {
         this.setCorsHeaders(res);
         try {
+            console.log('카카오 토큰 교환 요청 받음, 코드:', body.code);
+            console.log('요청 헤더:', res.req.headers);
             const { code } = body;
-            console.log(code);
             if (!code) {
                 return res.status(common_1.HttpStatus.BAD_REQUEST).json({
                     success: false,
-                    message: '인증 코드가 필요합니다.',
+                    message: '인증 코드가 제공되지 않았습니다.',
                 });
             }
             const kakaoToken = await this.authService.getKakaoToken(code);
@@ -149,11 +150,9 @@ let AuthController = class AuthController {
         };
     }
     setCorsHeaders(res) {
-        res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.header('Access-Control-Max-Age', '86400');
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type,Accept,Authorization');
     }
 };
 exports.AuthController = AuthController;

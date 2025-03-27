@@ -238,17 +238,20 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    // 모든 출처 허용
-    res.header('Access-Control-Allow-Origin', '*');
+    // 개발 환경에서는 localhost:3000을 허용
+    const allowedOrigins = ['http://localhost:3000'];
+    const origin = res.req.headers.origin;
+    const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+
+    res.header('Access-Control-Allow-Origin', allowedOrigin);
     res.header(
       'Access-Control-Allow-Methods',
       'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     );
     res.header(
       'Access-Control-Allow-Headers',
-      'Content-Type,Accept,Authorization',
+      'Content-Type, Accept, Authorization',
     );
-    // withCredentials: true를 사용하는 경우 '*'를 사용할 수 없으므로 주석 처리
-    // res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Credentials', 'true');
   }
 }
