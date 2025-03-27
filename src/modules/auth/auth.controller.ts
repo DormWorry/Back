@@ -236,7 +236,20 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    res.header('Access-Control-Allow-Origin', '*');
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'https://dormworry.p-e.kr',
+    ];
+
+    const origin = res.req.headers.origin;
+
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+    } else {
+      res.header('Access-Control-Allow-Origin', '*');
+    }
+
     res.header(
       'Access-Control-Allow-Methods',
       'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -246,5 +259,10 @@ export class AuthController {
       'Content-Type,Accept,Authorization',
     );
     res.header('Access-Control-Allow-Credentials', 'true');
+
+    // OPTIONS 요청에 대한 캐시 설정
+    if (res.req.method === 'OPTIONS') {
+      res.header('Access-Control-Max-Age', '86400'); // 24시간
+    }
   }
 }
