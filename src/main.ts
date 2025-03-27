@@ -25,7 +25,6 @@ async function bootstrap() {
         // 필요한 다른 오리진 추가
       ],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-      allowedHeaders: 'Content-Type,Accept,Authorization',
       credentials: true,
       preflightContinue: false,
       optionsSuccessStatus: 204,

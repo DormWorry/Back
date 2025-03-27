@@ -256,7 +256,7 @@ export class AuthController {
     );
     res.header(
       'Access-Control-Allow-Headers',
-      'Content-Type,Accept,Authorization',
+      'Content-Type, Accept, Authorization',
     );
     res.header('Access-Control-Allow-Credentials', 'true');
 
