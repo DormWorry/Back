@@ -86,9 +86,10 @@ export class AuthController {
     this.setCorsHeaders(res);
 
     try {
+      console.log('카카오 토큰 교환 요청 받음, 코드:', body.code); // 디버깅용
+      console.log('요청 헤더:', res.req.headers); // 요청 헤더 디버깅
+
       const { code } = body;
-      console.log('Received code:', code);
-      console.log('Request headers:', JSON.stringify(res.req.headers));
 
       if (!code) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -138,6 +139,7 @@ export class AuthController {
           ? error.getStatus()
           : HttpStatus.INTERNAL_SERVER_ERROR;
 
+      // 오류 응답에도 CORS 헤더 설정
       this.setCorsHeaders(res);
       return res.status(errorStatus).json({
         success: false,
@@ -236,20 +238,8 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'https://dormworry.p-e.kr',
-    ];
-
-    const origin = res.req.headers.origin;
-
-    if (origin && allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Origin', origin);
-    } else {
-      res.header('Access-Control-Allow-Origin', '*');
-    }
-
+    // 모든 출처 허용
+    res.header('Access-Control-Allow-Origin', '*');
     res.header(
       'Access-Control-Allow-Methods',
       'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -258,11 +248,7 @@ export class AuthController {
       'Access-Control-Allow-Headers',
       'Content-Type,Accept,Authorization',
     );
-    res.header('Access-Control-Allow-Credentials', 'true');
-
-    // OPTIONS 요청에 대한 캐시 설정
-    if (res.req.method === 'OPTIONS') {
-      res.header('Access-Control-Max-Age', '86400'); // 24시간
-    }
+    // withCredentials: true를 사용하는 경우 '*'를 사용할 수 없으므로 주석 처리
+    // res.header('Access-Control-Allow-Credentials', 'true');
   }
 }
