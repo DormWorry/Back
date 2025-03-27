@@ -87,11 +87,13 @@ export class AuthController {
 
     try {
       const { code } = body;
-      console.log(code);
+      console.log('Received code:', code);
+      console.log('Request headers:', JSON.stringify(res.req.headers));
+
       if (!code) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: '인증 코드가 필요합니다.',
+          message: '인증 코드가 제공되지 않았습니다.',
         });
       }
 
@@ -232,23 +234,17 @@ export class AuthController {
     };
   }
 
-  // CORS 헤더 설정 헬퍼 메서드
-  private setCorsHeaders(res: Response): void {
-    // 로컬 환경 허용
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-    // 모든 HTTP 메서드 허용
+  // CORS 헤더 설정 메서드
+  private setCorsHeaders(res: Response) {
+    res.header('Access-Control-Allow-Origin', '*');
     res.header(
       'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS',
+      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     );
-    // 모든 헤더 허용
     res.header(
       'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+      'Content-Type,Accept,Authorization',
     );
-    // 인증 정보 포함 여부
     res.header('Access-Control-Allow-Credentials', 'true');
-    // 프리플라이트 요청 캐시 시간
-    res.header('Access-Control-Max-Age', '86400');
   }
 }
