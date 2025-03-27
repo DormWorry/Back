@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  app:
+  nestjs_app:
     build: .
     container_name: nestjs_app
     ports:
@@ -30,7 +30,7 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
-      - app
+      - nestjs_app
     restart: always
 
   mysql:
