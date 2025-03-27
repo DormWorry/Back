@@ -16,22 +16,44 @@ async function bootstrap() {
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
 
-    // CORS 설정 추가 - 구체적인 오리진 설정으로 변경
+    // CORS 미들웨어를 모든 요청에 적용
+    app.use((req, res, next) => {
+      // 요청의 오리진을 가져옴
+      const origin = req.headers.origin;
+      // OPTIONS 메서드 처리를 위한 응답 헤더 설정
+      if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', origin || '*');
+        res.header(
+          'Access-Control-Allow-Methods',
+          'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        );
+        res.header(
+          'Access-Control-Allow-Headers',
+          'Content-Type,Accept,Authorization',
+        );
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Max-Age', '86400');
+        res.statusCode = 204;
+        return res.end();
+      }
+      // 다른 모든 요청에 대해서도 CORS 헤더 설정
+      res.header('Access-Control-Allow-Origin', origin || '*');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      next();
+    });
+
+    // CORS 설정 추가 - 와일드카드 대신 모든 오리진 허용으로 변경
     app.enableCors({
-      origin: [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'https://dormworry.p-e.kr',
-        // 필요한 다른 오리진 추가
-      ],
+      origin: true, // 모든 오리진 허용하되 요청의 오리진을 그대로 응답 헤더에 반영
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: 'Content-Type,Accept,Authorization',
       credentials: true,
       preflightContinue: false,
       optionsSuccessStatus: 204,
     });
 
     // 모든 인터페이스에 바인딩하기 위해 '0.0.0.0' 추가
-    await app.listen(process.env.PORT ?? 3001);
+    await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
     console.log(
       `애플리케이션이 포트 ${process.env.PORT ?? 3001}에서 실행 중입니다.`,
     );
