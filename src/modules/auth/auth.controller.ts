@@ -1,18 +1,20 @@
 import {
   Controller,
-  Get,
   Post,
-  UseGuards,
-  Req,
-  Res,
   Body,
+  Res,
   HttpStatus,
+  Get,
   HttpException,
   Options,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Response, Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { Response, Request } from 'express';
+import { ProfileUpdateDto } from './dto/profile-update.dto';
+import { KakaoTokenExchangeDto } from './dto/kakao-token-exchange.dto';
 import { User } from '../user/entities/user.entity';
 
 // 요청 객체 타입 정의
@@ -21,20 +23,20 @@ interface RequestWithUser extends Request {
 }
 
 // 프로필 업데이트 DTO
-interface ProfileUpdateDto {
-  nickname: string;
-  studentId: string;
-  department: string;
-  dormitoryId: string;
-  roomNumber: string;
-  gender: string;
-  kakaoId?: string;
-}
+// interface ProfileUpdateDto {
+//   nickname: string;
+//   studentId: string;
+//   department: string;
+//   dormitoryId: string;
+//   roomNumber: string;
+//   gender: string;
+//   kakaoId?: string;
+// }
 
 // 카카오 토큰 교환 DTO
-interface KakaoTokenExchangeDto {
-  code: string;
-}
+// interface KakaoTokenExchangeDto {
+//   code: string;
+// }
 
 @Controller('auth')
 export class AuthController {
@@ -71,7 +73,7 @@ export class AuthController {
 
     // 프론트엔드 앱으로 리다이렉트 (토큰과 신규 사용자 여부 전달)
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const redirectUrl = `${frontendUrl}/auth/callback?token=${token.access_token}&isNewUser=${user.isNewUser}`;
+    const redirectUrl = `${frontendUrl}/auth/callback?token=${token.access_token}&isNewUser=${user.isNewUser}&kakaoId=${user.kakaoId}`;
 
     return res.redirect(redirectUrl);
   }
@@ -125,6 +127,7 @@ export class AuthController {
             nickname: user.nickname,
             email: user.email,
             isNewUser: user.isNewUser,
+            kakaoId: user.kakaoId, // kakaoId 추가
           },
         },
       });
@@ -170,20 +173,57 @@ export class AuthController {
   }
 
   // 프로필 업데이트 (신규 사용자가 추가 정보 입력 후)
-  @Post('profile')
-  @UseGuards(AuthGuard('jwt'))
+  @Post('profile/create')
   async updateProfile(
-    @Req() req: RequestWithUser,
     @Body() profileData: ProfileUpdateDto,
+    @Res() res: Response,
   ) {
     try {
-      const userId = req.user.id;
-      const updatedUser = await this.authService.updateUserProfile(
-        userId,
+      // CORS 헤더 설정
+      this.setCorsHeaders(res);
+
+      // 디버깅을 위한 요청 데이터 로깅
+      console.log('프로필 업데이트 요청 데이터:', profileData);
+
+      // dormitoryId 처리 - 유효하지 않은 값이면 제거
+      if (profileData.dormitoryId !== undefined) {
+        // 문자열로 들어온 경우 숫자로 변환 (클라이언트에서 문자열로 보낼 수 있음)
+        const dormitoryIdNum =
+          typeof profileData.dormitoryId === 'string'
+            ? Number(profileData.dormitoryId)
+            : profileData.dormitoryId;
+
+        // 유효한 dormitoryId 값인지 확인 (1~3 사이의 값만 유효)
+        if (isNaN(dormitoryIdNum) || dormitoryIdNum < 1 || dormitoryIdNum > 3) {
+          console.log(
+            '유효하지 않은 dormitoryId 값이 제거되었습니다:',
+            profileData.dormitoryId,
+          );
+          // 유효하지 않은 값이면 객체에서 속성 자체를 제거
+          const { dormitoryId, ...restData } = profileData;
+          profileData = restData as ProfileUpdateDto;
+        } else {
+          // 유효한 값이면 숫자로 변환하여 저장
+          profileData.dormitoryId = dormitoryIdNum;
+        }
+      }
+
+      // kakaoId를 저장
+      const kakaoId = profileData.kakaoId;
+      if (!kakaoId) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'kakaoId가 필요합니다',
+        });
+      }
+
+      // kakaoId로 사용자 찾기
+      const updatedUser = await this.authService.updateUserProfileByKakaoId(
+        kakaoId,
         profileData,
       );
 
-      return {
+      return res.status(HttpStatus.OK).json({
         success: true,
         data: {
           user: {
@@ -193,13 +233,15 @@ export class AuthController {
             studentId: updatedUser.studentId,
             department: updatedUser.department,
             dormitoryId: updatedUser.dormitoryId,
+            kakaoId: updatedUser.kakaoId,
             roomNumber: updatedUser.roomNumber,
             gender: updatedUser.gender,
             isNewUser: updatedUser.isNewUser,
           },
         },
-      };
+      });
     } catch (error) {
+      console.error('프로필 업데이트 오류:', error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -209,7 +251,12 @@ export class AuthController {
           ? error.getStatus()
           : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      throw new HttpException(errorMessage, errorStatus);
+      // 오류 응답에도 CORS 헤더 설정
+      this.setCorsHeaders(res);
+      return res.status(errorStatus).json({
+        success: false,
+        message: errorMessage,
+      });
     }
   }
 
@@ -228,6 +275,7 @@ export class AuthController {
           studentId: user.studentId,
           department: user.department,
           dormitoryId: user.dormitoryId,
+          kakaoId: user.kakaoId,
           roomNumber: user.roomNumber,
           gender: user.gender,
           isNewUser: user.isNewUser,
@@ -238,20 +286,10 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    // 개발 환경에서는 localhost:3000을 허용
-    const allowedOrigins = ['http://localhost:3000'];
-    const origin = res.req.headers.origin;
-    const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-
-    res.header('Access-Control-Allow-Origin', allowedOrigin);
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    );
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Accept, Authorization',
-    );
-    res.header('Access-Control-Allow-Credentials', 'true');
+    // 와일드카드(*) 방식으로 CORS 헤더 설정
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    // 주의: 'Access-Control-Allow-Origin'이 '*'일 때는 'Access-Control-Allow-Credentials'를 true로 설정할 수 없음
   }
 }
