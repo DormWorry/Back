@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { PersonalityType } from '../../personality-type/entities/personality-type.entity';
+import { Dormitory } from '../../dormitory/entities/dormitory.entity';
 
 @Entity()
 export class RoommateProfile {
@@ -34,6 +35,9 @@ export class RoommateProfile {
   @Column('text')
   introduction: string;
 
+  @Column()
+  dormitoryId: string;
+
   @Column({ default: true })
   isActive: boolean;
 
@@ -55,4 +59,8 @@ export class RoommateProfile {
   @ManyToOne(() => PersonalityType)
   @JoinColumn({ name: 'preferredPersonalityTypeId' })
   preferredPersonalityType: PersonalityType;
+
+  @ManyToOne(() => Dormitory)
+  @JoinColumn({ name: 'dormitoryId' })
+  dormitory: Dormitory;
 }

@@ -41,6 +41,12 @@ export class Letter {
   @Column({ default: false })
   isRead: boolean;
 
+  @Column({ default: false })
+  isFavorite: boolean;
+
+  @Column({ nullable: true })
+  originalLetterId: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -55,4 +61,8 @@ export class Letter {
   @ManyToOne(() => User, (user) => user.receivedLetters)
   @JoinColumn({ name: 'recipientUserId' })
   recipient: User;
+
+  @ManyToOne(() => Letter, { nullable: true })
+  @JoinColumn({ name: 'originalLetterId' })
+  originalLetter: Letter;
 }

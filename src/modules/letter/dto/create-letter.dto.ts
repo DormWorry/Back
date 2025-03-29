@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsBoolean, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateLetterDto {
   @IsString()
@@ -11,6 +17,10 @@ export class CreateLetterDto {
 
   @IsString()
   @IsNotEmpty()
+  senderUserId: string;
+
+  @IsString()
+  @IsNotEmpty()
   senderRoomNumber: string;
 
   @IsString()
@@ -19,9 +29,17 @@ export class CreateLetterDto {
 
   @IsString()
   @IsNotEmpty()
+  recipientUserId: string;
+
+  @IsString()
+  @IsNotEmpty()
   recipientRoomNumber: string;
 
   @IsBoolean()
   @IsOptional()
   isAnonymous: boolean = false;
+
+  @IsUUID()
+  @IsOptional()
+  originalLetterId?: string;
 }
