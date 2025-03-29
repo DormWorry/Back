@@ -17,27 +17,34 @@ export class DormitorySeedService {
     if (count === 0) {
       const dormitories = [
         {
-          name: '기숙사 A동',
-          location: '서울특별시 성북구 화랑로 123',
-          description: '남학생 전용 기숙사, 2인실 위주',
+          id: 1,
+          name: '제 1기숙사',
         },
         {
-          name: '기숙사 B동',
-          location: '서울특별시 성북구 화랑로 124',
-          description: '여학생 전용 기숙사, 2인실 위주',
+          id: 2,
+          name: '제 2기숙사',
         },
         {
-          name: '기숙사 C동',
-          location: '서울특별시 성북구 화랑로 125',
-          description: '대학원생 전용 기숙사, 1인실 위주',
+          id: 3,
+          name: '제 3기숙사',
         },
       ];
 
-      const createdDormitories = this.dormitoryRepository.create(dormitories);
-      const savedDormitories = await this.dormitoryRepository.save(createdDormitories);
+      // 기존 데이터 모두 삭제 (안전하게 초기화)
+      await this.dormitoryRepository.clear();
       
-      console.log('기숙사 시드 데이터 생성 완료:', savedDormitories.map(d => ({ id: d.id, name: d.name })));
-      return savedDormitories;
+      // ID를 직접 지정하기 위해 쿼리 빌더 사용
+      for (const dormitory of dormitories) {
+        await this.dormitoryRepository
+          .createQueryBuilder()
+          .insert()
+          .into(Dormitory)
+          .values(dormitory)
+          .execute();
+      }
+      
+      console.log('기숙사 시드 데이터 생성 완료:', dormitories);
+      return await this.dormitoryRepository.find();
     }
     
     console.log('기숙사 데이터가 이미 존재합니다. 시드 생성을 건너뜁니다.');
