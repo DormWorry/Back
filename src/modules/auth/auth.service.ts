@@ -8,6 +8,8 @@ import {
   KakaoTokenResponse,
   KakaoUserInfo,
 } from './interfaces/kakao.interfaces';
+import { ProfileUpdateDto } from './dto/profile-update.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -125,6 +127,38 @@ export class AuthService {
 
     // 사용자 정보 업데이트
     Object.assign(user, { ...profileData, isNewUser: false });
+
+    return this.usersRepository.save(user);
+  }
+
+  // kakaoId로 사용자 찾아 프로필 업데이트
+  async updateUserProfileByKakaoId(
+    kakaoId: string,
+    profileData: ProfileUpdateDto,
+  ): Promise<User> {
+    // kakaoId로 사용자 검색
+    const user = await this.usersRepository.findOne({ where: { kakaoId } });
+
+    if (!user) {
+      throw new Error(
+        `KakaoId ${kakaoId}에 해당하는 사용자를 찾을 수 없습니다.`,
+      );
+    }
+
+    // 프로필 데이터에서 dormitoryId가 있는 경우에만 포함
+    const updateData = { ...profileData, isNewUser: false };
+    
+    // dormitoryId가 없거나 0이면 해당 필드 제거
+    if (
+      updateData.dormitoryId === undefined ||
+      updateData.dormitoryId === null ||
+      updateData.dormitoryId === 0
+    ) {
+      delete updateData.dormitoryId;
+    }
+
+    // 사용자 정보 업데이트
+    Object.assign(user, updateData);
 
     return this.usersRepository.save(user);
   }
