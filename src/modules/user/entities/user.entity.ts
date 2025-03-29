@@ -47,11 +47,10 @@ export class User {
   department: string;
 
   @Column({
-    type: 'varchar',
-    length: 50,
+    type: 'int',
     nullable: true,
   })
-  dormitoryId: string;
+  dormitoryId: number;
 
   @Column({ nullable: true })
   roomNumber: string;
