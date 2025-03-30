@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Letter } from './entities/letter.entity';
 import { CreateLetterDto } from './dto/create-letter.dto';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class LetterService {
   constructor(
     @InjectRepository(Letter)
     private letterRepository: Repository<Letter>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   // 사용자의 받은 편지함 목록 조회
@@ -23,7 +26,7 @@ export class LetterService {
     });
 
     // 익명 편지의 발신자 정보 숨기기
-    const processedLetters = letters.map(letter => {
+    const processedLetters = letters.map((letter) => {
       if (letter.isAnonymous) {
         return {
           ...letter,
@@ -76,7 +79,10 @@ export class LetterService {
     }
     
     // 발신자나 수신자만 편지를 볼 수 있음
-    if (letter.senderRoomNumber !== userRoomNumber && letter.recipientRoomNumber !== userRoomNumber) {
+    if (
+      letter.senderRoomNumber !== userRoomNumber &&
+      letter.recipientRoomNumber !== userRoomNumber
+    ) {
       throw new ForbiddenException('해당 편지에 접근할 권한이 없습니다.');
     }
     
@@ -99,8 +105,37 @@ export class LetterService {
   }
 
   // 편지 전송
-  async createLetter(createLetterDto: CreateLetterDto) {
-    const newLetter = this.letterRepository.create(createLetterDto);
-    return this.letterRepository.save(newLetter);
+  async createLetter(createLetterDto: CreateLetterDto, senderUserId: string) {
+    try {
+      // 수신자 ID 조회
+      const recipient = await this.userRepository.findOne({
+        where: { roomNumber: createLetterDto.recipientRoomNumber }
+      });
+      
+      if (!recipient) {
+        throw new NotFoundException(`방 번호 ${createLetterDto.recipientRoomNumber}에 해당하는 사용자를 찾을 수 없습니다.`);
+      }
+      
+      // 새 편지 객체 생성
+      const newLetter = new Letter();
+      
+      // DTO에서 값 복사
+      newLetter.title = createLetterDto.title;
+      newLetter.content = createLetterDto.content;
+      newLetter.senderRoomNumber = createLetterDto.senderRoomNumber;
+      newLetter.senderName = createLetterDto.senderName || '';
+      newLetter.recipientRoomNumber = createLetterDto.recipientRoomNumber;
+      newLetter.isAnonymous = createLetterDto.isAnonymous;
+      
+      // ID 설정 (Letter 엔티티에서는 string 타입으로 정의됨)
+      newLetter.senderUserId = senderUserId;
+      newLetter.recipientUserId = recipient.id.toString();
+      newLetter.isRead = false;
+      
+      return this.letterRepository.save(newLetter);
+    } catch (error) {
+      console.error('편지 생성 오류:', error);
+      throw error;
+    }
   }
 }
