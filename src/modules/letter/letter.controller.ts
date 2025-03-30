@@ -1,53 +1,79 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { LetterService } from './letter.service';
 import { CreateLetterDto } from './dto/create-letter.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
-// 추후 인증 가드 추가 구현 필요
-// @UseGuards(AuthGuard)
+// 요청 객체 타입 정의
+interface RequestWithUser extends Request {
+  user: {
+    id: string;
+    kakaoId: string;
+    roomNumber: string;
+    name?: string;
+    nickname?: string;
+  };
+}
+
 @Controller('letters')
 export class LetterController {
   constructor(private readonly letterService: LetterService) {}
 
   // 받은 편지함 목록 조회
+  @UseGuards(AuthGuard('jwt'))
   @Get('received')
   async getReceivedLetters(
-    @Request() req,
+    @Req() req: RequestWithUser,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    // 추후 실제 인증 처리 후 토큰에서 추출한 사용자 정보 활용
-    const userRoomNumber = req.query.roomNumber; // 임시로 쿼리 파라미터로 받음
+    const userRoomNumber = req.user.roomNumber;
     return this.letterService.getReceivedLetters(userRoomNumber, page, limit);
   }
 
   // 보낸 편지함 목록 조회
+  @UseGuards(AuthGuard('jwt'))
   @Get('sent')
   async getSentLetters(
-    @Request() req,
+    @Req() req: RequestWithUser,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    // 추후 실제 인증 처리 후 토큰에서 추출한 사용자 정보 활용
-    const userRoomNumber = req.query.roomNumber; // 임시로 쿼리 파라미터로 받음
+    const userRoomNumber = req.user.roomNumber;
     return this.letterService.getSentLetters(userRoomNumber, page, limit);
   }
 
   // 특정 편지 상세 조회
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async getLetterById(
-    @Param('id') id: string,
-    @Request() req,
+    @Param('id') id: string, 
+    @Req() req: RequestWithUser,
   ) {
-    // 추후 실제 인증 처리 후 토큰에서 추출한 사용자 정보 활용
-    const userRoomNumber = req.query.roomNumber; // 임시로 쿼리 파라미터로 받음
+    const userRoomNumber = req.user.roomNumber;
     return this.letterService.getLetterById(id, userRoomNumber);
   }
 
   // 편지 보내기
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async createLetter(
     @Body() createLetterDto: CreateLetterDto,
+    @Req() req: RequestWithUser,
   ) {
-    return this.letterService.createLetter(createLetterDto);
+    // 토큰에서 가져온 사용자 정보로 발신자 정보 설정
+    createLetterDto.senderRoomNumber = req.user.roomNumber;
+    createLetterDto.senderName = req.user.name || req.user.nickname;
+    const senderUserId = req.user.id;
+    return this.letterService.createLetter(createLetterDto, senderUserId);
   }
 }
