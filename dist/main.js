@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const init_db_1 = require("./database/init-db");
+const cors = require("cors");
 async function bootstrap() {
     try {
         const dbInitialized = await (0, init_db_1.initializeDatabase)();
@@ -11,14 +12,13 @@ async function bootstrap() {
             process.exit(1);
         }
         const app = await core_1.NestFactory.create(app_module_1.AppModule);
-        app.enableCors({
-            origin: 'http://localhost:3000',
+        app.use(cors({
+            origin: '*',
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-            allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
-            credentials: true,
+            allowedHeaders: 'Content-Type,Accept,Authorization',
             preflightContinue: false,
             optionsSuccessStatus: 204,
-        });
+        }));
         await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
         console.log(`애플리케이션이 포트 ${process.env.PORT ?? 3001}에서 실행 중입니다.`);
     }

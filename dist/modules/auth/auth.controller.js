@@ -42,11 +42,12 @@ let AuthController = class AuthController {
         this.setCorsHeaders(res);
         try {
             const { code } = body;
-            console.log(code);
+            console.log('Received code:', code);
+            console.log('Request headers:', JSON.stringify(res.req.headers));
             if (!code) {
                 return res.status(common_1.HttpStatus.BAD_REQUEST).json({
                     success: false,
-                    message: '인증 코드가 필요합니다.',
+                    message: '인증 코드가 제공되지 않았습니다.',
                 });
             }
             const kakaoToken = await this.authService.getKakaoToken(code);
@@ -149,11 +150,24 @@ let AuthController = class AuthController {
         };
     }
     setCorsHeaders(res) {
-        res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'https://dormworry.p-e.kr',
+        ];
+        const origin = res.req.headers.origin;
+        if (origin && allowedOrigins.includes(origin)) {
+            res.header('Access-Control-Allow-Origin', origin);
+        }
+        else {
+            res.header('Access-Control-Allow-Origin', '*');
+        }
+        res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type,Accept,Authorization');
         res.header('Access-Control-Allow-Credentials', 'true');
-        res.header('Access-Control-Max-Age', '86400');
+        if (res.req.method === 'OPTIONS') {
+            res.header('Access-Control-Max-Age', '86400');
+        }
     }
 };
 exports.AuthController = AuthController;

@@ -40,6 +40,10 @@ exports.AppModule = AppModule = __decorate([
                 database: process.env.DB_NAME,
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
                 synchronize: process.env.NODE_ENV !== 'production',
+                ...(process.env.NODE_ENV !== 'production' && {
+                    logging: ['error', 'warn'],
+                    dropSchema: process.env.DB_DROP_SCHEMA === 'true',
+                }),
             }),
             letter_module_1.LetterModule,
             user_module_1.UserModule,

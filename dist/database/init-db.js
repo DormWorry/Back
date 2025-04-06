@@ -6,6 +6,12 @@ const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 async function initializeDatabase() {
     const { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env;
+    console.log('데이터베이스 연결 설정:', {
+        host: DB_HOST,
+        port: DB_PORT,
+        user: DB_USERNAME,
+        database: DB_NAME,
+    });
     try {
         console.log('데이터베이스 연결 상태 확인 중...');
         const connection = await mysql.createConnection({
@@ -24,6 +30,28 @@ async function initializeDatabase() {
         }
         else {
             console.log(`데이터베이스 '${DB_NAME}'가 이미 존재합니다.`);
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('개발 환경에서 실행 중. 문제 해결을 위한 테이블 초기화 시도...');
+                await connection.query(`USE \`${DB_NAME}\``);
+                try {
+                    const [tableCheck] = await connection.query(`SHOW TABLES LIKE 'dormitory'`);
+                    if (Array.isArray(tableCheck) && tableCheck.length > 0) {
+                        console.log('dormitory 테이블이 존재합니다. 문제 해결을 위해 테이블 재설정...');
+                        try {
+                            await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+                            await connection.query('DROP TABLE IF EXISTS dormitory');
+                            console.log('dormitory 테이블 삭제 완료. 애플리케이션 시작 시 다시 생성됩니다.');
+                            await connection.query('SET FOREIGN_KEY_CHECKS = 1');
+                        }
+                        catch (dropError) {
+                            console.error('테이블 삭제 중 오류:', dropError);
+                        }
+                    }
+                }
+                catch (tableCheckError) {
+                    console.error('테이블 확인 중 오류:', tableCheckError);
+                }
+            }
         }
         await connection.end();
         console.log('데이터베이스 초기화 완료');

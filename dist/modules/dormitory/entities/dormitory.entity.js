@@ -11,15 +11,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dormitory = void 0;
 const typeorm_1 = require("typeorm");
+const uuid_1 = require("uuid");
 const user_entity_1 = require("../../user/entities/user.entity");
 const dormitory_announcement_entity_1 = require("../../dormitory-announcement/entities/dormitory-announcement.entity");
 let Dormitory = class Dormitory {
+    generateId() {
+        if (!this.id) {
+            this.id = (0, uuid_1.v4)();
+        }
+    }
 };
 exports.Dormitory = Dormitory;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
 ], Dormitory.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.BeforeInsert)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Dormitory.prototype, "generateId", null);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
