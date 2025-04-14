@@ -17,21 +17,13 @@ let Dormitory = class Dormitory {
 };
 exports.Dormitory = Dormitory;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
-    __metadata("design:type", String)
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
 ], Dormitory.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Dormitory.prototype, "name", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Dormitory.prototype, "location", void 0);
-__decorate([
-    (0, typeorm_1.Column)('text'),
-    __metadata("design:type", String)
-], Dormitory.prototype, "description", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => user_entity_1.User, (user) => user.dormitory),
     __metadata("design:type", Array)

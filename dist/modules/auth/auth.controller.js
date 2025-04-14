@@ -16,6 +16,8 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 const auth_service_1 = require("./auth.service");
+const profile_update_dto_1 = require("./dto/profile-update.dto");
+const kakao_token_exchange_dto_1 = require("./dto/kakao-token-exchange.dto");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -35,7 +37,7 @@ let AuthController = class AuthController {
         const user = req.user;
         const token = this.authService.generateToken(user);
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        const redirectUrl = `${frontendUrl}/auth/callback?token=${token.access_token}&isNewUser=${user.isNewUser}`;
+        const redirectUrl = `${frontendUrl}/auth/callback?token=${token.access_token}&isNewUser=${user.isNewUser}&kakaoId=${user.kakaoId}`;
         return res.redirect(redirectUrl);
     }
     async exchangeKakaoToken(body, res) {
@@ -63,6 +65,7 @@ let AuthController = class AuthController {
                         nickname: user.nickname,
                         email: user.email,
                         isNewUser: user.isNewUser,
+                        kakaoId: user.kakaoId,
                     },
                 },
             });
@@ -99,11 +102,32 @@ let AuthController = class AuthController {
             },
         };
     }
-    async updateProfile(req, profileData) {
+    async updateProfile(profileData, res) {
         try {
-            const userId = req.user.id;
-            const updatedUser = await this.authService.updateUserProfile(userId, profileData);
-            return {
+            this.setCorsHeaders(res);
+            console.log('프로필 업데이트 요청 데이터:', profileData);
+            if (profileData.dormitoryId !== undefined) {
+                const dormitoryIdNum = typeof profileData.dormitoryId === 'string'
+                    ? Number(profileData.dormitoryId)
+                    : profileData.dormitoryId;
+                if (isNaN(dormitoryIdNum) || dormitoryIdNum < 1 || dormitoryIdNum > 3) {
+                    console.log('유효하지 않은 dormitoryId 값이 제거되었습니다:', profileData.dormitoryId);
+                    const { dormitoryId, ...restData } = profileData;
+                    profileData = restData;
+                }
+                else {
+                    profileData.dormitoryId = dormitoryIdNum;
+                }
+            }
+            const kakaoId = profileData.kakaoId;
+            if (!kakaoId) {
+                return res.status(common_1.HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    message: 'kakaoId가 필요합니다',
+                });
+            }
+            const updatedUser = await this.authService.updateUserProfileByKakaoId(kakaoId, profileData);
+            return res.status(common_1.HttpStatus.OK).json({
                 success: true,
                 data: {
                     user: {
@@ -113,21 +137,27 @@ let AuthController = class AuthController {
                         studentId: updatedUser.studentId,
                         department: updatedUser.department,
                         dormitoryId: updatedUser.dormitoryId,
+                        kakaoId: updatedUser.kakaoId,
                         roomNumber: updatedUser.roomNumber,
                         gender: updatedUser.gender,
                         isNewUser: updatedUser.isNewUser,
                     },
                 },
-            };
+            });
         }
         catch (error) {
+            console.error('프로필 업데이트 오류:', error);
             const errorMessage = error instanceof Error
                 ? error.message
                 : '프로필 업데이트 중 오류가 발생했습니다.';
             const errorStatus = error instanceof common_1.HttpException
                 ? error.getStatus()
                 : common_1.HttpStatus.INTERNAL_SERVER_ERROR;
-            throw new common_1.HttpException(errorMessage, errorStatus);
+            this.setCorsHeaders(res);
+            return res.status(errorStatus).json({
+                success: false,
+                message: errorMessage,
+            });
         }
     }
     getProfile(req) {
@@ -142,6 +172,7 @@ let AuthController = class AuthController {
                     studentId: user.studentId,
                     department: user.department,
                     dormitoryId: user.dormitoryId,
+                    kakaoId: user.kakaoId,
                     roomNumber: user.roomNumber,
                     gender: user.gender,
                     isNewUser: user.isNewUser,
@@ -151,8 +182,8 @@ let AuthController = class AuthController {
     }
     setCorsHeaders(res) {
         res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type,Accept,Authorization');
+        res.header('Access-Control-Allow-Methods', '*');
+        res.header('Access-Control-Allow-Headers', '*');
     }
 };
 exports.AuthController = AuthController;
@@ -191,7 +222,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [kakao_token_exchange_dto_1.KakaoTokenExchangeDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "exchangeKakaoToken", null);
 __decorate([
@@ -203,12 +234,11 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getKakaoLoginStatus", null);
 __decorate([
-    (0, common_1.Post)('profile'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Body)()),
+    (0, common_1.Post)('profile/create'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [profile_update_dto_1.ProfileUpdateDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "updateProfile", null);
 __decorate([

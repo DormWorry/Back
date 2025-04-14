@@ -105,6 +105,20 @@ let AuthService = class AuthService {
         Object.assign(user, { ...profileData, isNewUser: false });
         return this.usersRepository.save(user);
     }
+    async updateUserProfileByKakaoId(kakaoId, profileData) {
+        const user = await this.usersRepository.findOne({ where: { kakaoId } });
+        if (!user) {
+            throw new Error(`KakaoId ${kakaoId}에 해당하는 사용자를 찾을 수 없습니다.`);
+        }
+        const updateData = { ...profileData, isNewUser: false };
+        if (updateData.dormitoryId === undefined ||
+            updateData.dormitoryId === null ||
+            updateData.dormitoryId === 0) {
+            delete updateData.dormitoryId;
+        }
+        Object.assign(user, updateData);
+        return this.usersRepository.save(user);
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

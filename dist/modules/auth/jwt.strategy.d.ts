@@ -9,7 +9,7 @@ export declare class JwtStrategy extends JwtStrategy_base {
         kakaoId: string;
         nickname: string;
         isNewUser: boolean;
-        dormitoryId: string;
+        dormitoryId: number;
         roomNumber: string;
     }>;
 }

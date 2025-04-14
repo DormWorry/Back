@@ -1,9 +1,11 @@
 import { Repository } from 'typeorm';
 import { Letter } from './entities/letter.entity';
 import { CreateLetterDto } from './dto/create-letter.dto';
+import { User } from '../user/entities/user.entity';
 export declare class LetterService {
     private letterRepository;
-    constructor(letterRepository: Repository<Letter>);
+    private userRepository;
+    constructor(letterRepository: Repository<Letter>, userRepository: Repository<User>);
     getReceivedLetters(roomNumber: string, page?: number, limit?: number): Promise<{
         data: (Letter | {
             senderRoomNumber: null;
@@ -18,8 +20,8 @@ export declare class LetterService {
             isRead: boolean;
             createdAt: Date;
             updatedAt: Date;
-            sender: import("../user/entities/user.entity").User;
-            recipient: import("../user/entities/user.entity").User;
+            sender: User;
+            recipient: User;
         })[];
         meta: {
             page: number;
@@ -50,8 +52,8 @@ export declare class LetterService {
         isRead: boolean;
         createdAt: Date;
         updatedAt: Date;
-        sender: import("../user/entities/user.entity").User;
-        recipient: import("../user/entities/user.entity").User;
+        sender: User;
+        recipient: User;
     }>;
-    createLetter(createLetterDto: CreateLetterDto): Promise<Letter>;
+    createLetter(createLetterDto: CreateLetterDto, senderUserId: string): Promise<Letter>;
 }

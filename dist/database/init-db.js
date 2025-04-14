@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializeDatabase = initializeDatabase;
 const mysql = require("mysql2/promise");
 const dotenv_1 = require("dotenv");
+const typeorm_1 = require("typeorm");
+const personality_types_seed_1 = require("./seed/personality-types.seed");
 (0, dotenv_1.config)();
 async function initializeDatabase() {
     const { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env;
@@ -27,6 +29,23 @@ async function initializeDatabase() {
         }
         await connection.end();
         console.log('데이터베이스 초기화 완료');
+        try {
+            const typeormConnection = await (0, typeorm_1.createConnection)({
+                type: 'mysql',
+                host: DB_HOST,
+                port: parseInt(DB_PORT || '3306', 10),
+                username: DB_USERNAME,
+                password: DB_PASSWORD,
+                database: DB_NAME,
+                entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+                synchronize: false,
+            });
+            await (0, personality_types_seed_1.seedPersonalityTypes)(typeormConnection);
+            await typeormConnection.close();
+        }
+        catch (seedError) {
+            console.error('시드 데이터 적용 중 오류 발생:', seedError);
+        }
         return true;
     }
     catch (error) {

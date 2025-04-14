@@ -55,11 +55,10 @@ __decorate([
 ], User.prototype, "department", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'varchar',
-        length: 50,
+        type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], User.prototype, "dormitoryId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
