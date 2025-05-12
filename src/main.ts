@@ -16,14 +16,11 @@ async function bootstrap() {
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
 
-    // CORS 설정 - 로컬 및 배포 환경 모두 지원 (모든 원본 허용)
+    // 모든 출처에서의 접근을 허용하는 간단한 CORS 설정
     app.enableCors({
-      origin: true, // 모든 원본 허용 (Vercel 출처 포함)
+      origin: '*', // 완전 공개 - 모든 출처 허용
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-      exposedHeaders: 'Access-Control-Allow-Origin',
-      credentials: true,
-      preflightContinue: false,
       optionsSuccessStatus: 204,
       maxAge: 86400 // preflight 요청 캐싱 시간 24시간
     });
