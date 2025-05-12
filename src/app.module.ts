@@ -32,7 +32,10 @@ import { AuthModule } from './modules/auth/auth.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') !== 'production',
         // AWS RDS 연결을 위한 추가 설정
-        ssl: configService.get('NODE_ENV') === 'production',
+        ssl: configService.get('NODE_ENV') === 'production' ? {
+          // SSL 인증서 검증 비활성화 (자체 서명 인증서 사용 시)
+          rejectUnauthorized: false
+        } : false,
         extra: {
           // 연결 풀 설정
           connectionLimit: 10,

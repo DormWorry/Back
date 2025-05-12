@@ -43,7 +43,9 @@ exports.AppModule = AppModule = __decorate([
                     database: configService.get('DB_NAME'),
                     entities: [__dirname + '/**/*.entity{.ts,.js}'],
                     synchronize: configService.get('NODE_ENV') !== 'production',
-                    ssl: configService.get('NODE_ENV') === 'production',
+                    ssl: configService.get('NODE_ENV') === 'production' ? {
+                        rejectUnauthorized: false
+                    } : false,
                     extra: {
                         connectionLimit: 10,
                         connectTimeout: 60000,
