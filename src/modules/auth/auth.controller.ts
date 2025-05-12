@@ -38,6 +38,7 @@ export class ProfileUpdateDto {
 // KakaoTokenExchangeDto 직접 정의
 export class KakaoTokenExchangeDto {
   code: string;
+  redirectUri?: string;
 }
 
 // 요청 객체 타입 정의
@@ -116,7 +117,7 @@ export class AuthController {
       console.log('코드 앞 10자:', body.code.substring(0, 10) + '...');
       console.log('Origin 헤더:', res.req.headers.origin);
 
-      const { code } = body;
+      const { code, redirectUri } = body;
 
       if (!code) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -125,8 +126,13 @@ export class AuthController {
         });
       }
 
-      // 카카오 API와 코드 교환
-      const kakaoToken = await this.authService.getKakaoToken(code);
+      console.log('프론트엔드에서 전달받은 redirectUri:', redirectUri);
+
+      // 카카오 API와 코드 교환 (전달받은 redirectUri 사용)
+      const kakaoToken = await this.authService.getKakaoToken(
+        code,
+        redirectUri,
+      );
 
       // 카카오 사용자 정보 조회
       const kakaoUser = await this.authService.getKakaoUserInfo(

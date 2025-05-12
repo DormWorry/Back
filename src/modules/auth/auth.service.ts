@@ -63,10 +63,14 @@ export class AuthService {
   }
 
   // 카카오 인증 코드를 토큰으로 교환
-  async getKakaoToken(code: string): Promise<KakaoTokenResponse> {
+  async getKakaoToken(
+    code: string,
+    redirectUri?: string,
+  ): Promise<KakaoTokenResponse> {
     // 환경 변수 유효성 검사
     const clientId = process.env.KAKAO_CLIENT_ID;
-    const callbackUrl = process.env.KAKAO_CALLBACK_URL;
+    // 요청에서 제공한 redirectUri 사용 또는 환경 변수에서 가져오기
+    const callbackUrl = redirectUri || process.env.KAKAO_CALLBACK_URL;
 
     if (!clientId) {
       console.error('KAKAO_CLIENT_ID 환경 변수가 설정되지 않았습니다.');
@@ -75,15 +79,19 @@ export class AuthService {
 
     if (!callbackUrl) {
       console.error('KAKAO_CALLBACK_URL 환경 변수가 설정되지 않았습니다.');
-      throw new Error('카카오 인증 설정이 올바르지 않습니다. (Callback URL 누락)');
+      throw new Error(
+        '카카오 인증 설정이 올바르지 않습니다. (Callback URL 누락)',
+      );
     }
+    
+    console.log(`사용할 리다이렉트 URI: ${callbackUrl}`);
     
     try {
       const tokenUrl = 'https://kauth.kakao.com/oauth/token';
       const params = new URLSearchParams();
       params.append('grant_type', 'authorization_code');
       params.append('client_id', clientId);
-      params.append('redirect_uri', callbackUrl);
+      params.append('redirect_uri', callbackUrl); // 사용자가 제공한 리다이렉트 URI 사용
       params.append('code', code);
 
       console.log(`카카오 토큰 교환 시도: redirect_uri=${callbackUrl}`);
