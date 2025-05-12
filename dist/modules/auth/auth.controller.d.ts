@@ -1,20 +1,10 @@
-import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
+import { AuthService } from './auth.service';
+import { ProfileUpdateDto } from './dto/profile-update.dto';
+import { KakaoTokenExchangeDto } from './dto/kakao-token-exchange.dto';
 import { User } from '../user/entities/user.entity';
 interface RequestWithUser extends Request {
     user: User;
-}
-interface ProfileUpdateDto {
-    nickname: string;
-    studentId: string;
-    department: string;
-    dormitoryId: string;
-    roomNumber: string;
-    gender: string;
-    kakaoId?: string;
-}
-interface KakaoTokenExchangeDto {
-    code: string;
 }
 export declare class AuthController {
     private readonly authService;
@@ -33,27 +23,12 @@ export declare class AuthController {
             email: string;
             studentId: string;
             department: string;
-            dormitoryId: string;
+            dormitoryId: number;
             roomNumber: string;
             gender: import("../user/entities/user.entity").Gender;
         };
     };
-    updateProfile(req: RequestWithUser, profileData: ProfileUpdateDto): Promise<{
-        success: boolean;
-        data: {
-            user: {
-                id: number;
-                nickname: string;
-                email: string;
-                studentId: string;
-                department: string;
-                dormitoryId: string;
-                roomNumber: string;
-                gender: import("../user/entities/user.entity").Gender;
-                isNewUser: boolean;
-            };
-        };
-    }>;
+    updateProfile(profileData: ProfileUpdateDto, res: Response): Promise<Response<any, Record<string, any>>>;
     getProfile(req: RequestWithUser): {
         success: boolean;
         data: {
@@ -63,7 +38,8 @@ export declare class AuthController {
                 email: string;
                 studentId: string;
                 department: string;
-                dormitoryId: string;
+                dormitoryId: number;
+                kakaoId: string;
                 roomNumber: string;
                 gender: import("../user/entities/user.entity").Gender;
                 isNewUser: boolean;

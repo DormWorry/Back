@@ -1,9 +1,19 @@
 import { LetterService } from './letter.service';
 import { CreateLetterDto } from './dto/create-letter.dto';
+import { Request } from 'express';
+interface RequestWithUser extends Request {
+    user: {
+        id: string;
+        kakaoId: string;
+        roomNumber: string;
+        name?: string;
+        nickname?: string;
+    };
+}
 export declare class LetterController {
     private readonly letterService;
     constructor(letterService: LetterService);
-    getReceivedLetters(req: any, page?: number, limit?: number): Promise<{
+    getReceivedLetters(req: RequestWithUser, page?: number, limit?: number): Promise<{
         data: (import("./entities/letter.entity").Letter | {
             senderRoomNumber: null;
             senderName: string;
@@ -27,7 +37,7 @@ export declare class LetterController {
             totalPages: number;
         };
     }>;
-    getSentLetters(req: any, page?: number, limit?: number): Promise<{
+    getSentLetters(req: RequestWithUser, page?: number, limit?: number): Promise<{
         data: import("./entities/letter.entity").Letter[];
         meta: {
             page: number;
@@ -36,7 +46,7 @@ export declare class LetterController {
             totalPages: number;
         };
     }>;
-    getLetterById(id: string, req: any): Promise<import("./entities/letter.entity").Letter | {
+    getLetterById(id: string, req: RequestWithUser): Promise<import("./entities/letter.entity").Letter | {
         senderRoomNumber: null;
         senderName: string;
         id: string;
@@ -52,5 +62,6 @@ export declare class LetterController {
         sender: import("../user/entities/user.entity").User;
         recipient: import("../user/entities/user.entity").User;
     }>;
-    createLetter(createLetterDto: CreateLetterDto): Promise<import("./entities/letter.entity").Letter>;
+    createLetter(createLetterDto: CreateLetterDto, req: RequestWithUser): Promise<import("./entities/letter.entity").Letter>;
 }
+export {};

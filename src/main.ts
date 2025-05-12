@@ -25,8 +25,9 @@ async function bootstrap() {
     });
 
     // 모든 인터페이스에 바인딩하기 위해 '0.0.0.0' 추가
-    await app.listen(3001, '0.0.0.0');
-    console.log(`애플리케이션이 포트 3001에서 실행 중입니다.`);
+    const port = 3001;
+    await app.listen(port, '0.0.0.0');
+    console.log(`애플리케이션이 포트 ${port}에서 실행 중입니다.`);
   } catch (error) {
     console.error('애플리케이션 시작 중 오류 발생:', error);
     process.exit(1);

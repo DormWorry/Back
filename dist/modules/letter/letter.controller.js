@@ -16,30 +16,35 @@ exports.LetterController = void 0;
 const common_1 = require("@nestjs/common");
 const letter_service_1 = require("./letter.service");
 const create_letter_dto_1 = require("./dto/create-letter.dto");
+const passport_1 = require("@nestjs/passport");
 let LetterController = class LetterController {
     constructor(letterService) {
         this.letterService = letterService;
     }
     async getReceivedLetters(req, page = 1, limit = 10) {
-        const userRoomNumber = req.query.roomNumber;
+        const userRoomNumber = req.user.roomNumber;
         return this.letterService.getReceivedLetters(userRoomNumber, page, limit);
     }
     async getSentLetters(req, page = 1, limit = 10) {
-        const userRoomNumber = req.query.roomNumber;
+        const userRoomNumber = req.user.roomNumber;
         return this.letterService.getSentLetters(userRoomNumber, page, limit);
     }
     async getLetterById(id, req) {
-        const userRoomNumber = req.query.roomNumber;
+        const userRoomNumber = req.user.roomNumber;
         return this.letterService.getLetterById(id, userRoomNumber);
     }
-    async createLetter(createLetterDto) {
-        return this.letterService.createLetter(createLetterDto);
+    async createLetter(createLetterDto, req) {
+        createLetterDto.senderRoomNumber = req.user.roomNumber;
+        createLetterDto.senderName = req.user.name || req.user.nickname;
+        const senderUserId = req.user.id;
+        return this.letterService.createLetter(createLetterDto, senderUserId);
     }
 };
 exports.LetterController = LetterController;
 __decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Get)('received'),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('page')),
     __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
@@ -47,8 +52,9 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], LetterController.prototype, "getReceivedLetters", null);
 __decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Get)('sent'),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('page')),
     __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
@@ -56,18 +62,21 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], LetterController.prototype, "getSentLetters", null);
 __decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], LetterController.prototype, "getLetterById", null);
 __decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_letter_dto_1.CreateLetterDto]),
+    __metadata("design:paramtypes", [create_letter_dto_1.CreateLetterDto, Object]),
     __metadata("design:returntype", Promise)
 ], LetterController.prototype, "createLetter", null);
 exports.LetterController = LetterController = __decorate([

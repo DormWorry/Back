@@ -19,7 +19,7 @@ export declare class User {
     email: string;
     studentId: string;
     department: string;
-    dormitoryId: string;
+    dormitoryId: number;
     roomNumber: string;
     gender: Gender;
     createdAt: Date;

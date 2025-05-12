@@ -1,3 +1,4 @@
+import { Dormitory } from './../../dormitory/entities/dormitory.entity';
 import {
   Entity,
   Column,
@@ -34,8 +35,8 @@ export class RoommateProfile {
   @Column('text')
   introduction: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column()
+  dormitoryId: string;
 
   @CreateDateColumn()
   createdAt: Date;

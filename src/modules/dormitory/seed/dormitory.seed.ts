@@ -30,20 +30,28 @@ export class DormitorySeedService {
         },
       ];
 
-      // 기존 데이터 모두 삭제 (안전하게 초기화)
-      await this.dormitoryRepository.clear();
-      
-      // ID를 직접 지정하기 위해 쿼리 빌더 사용
+      // 기존 데이터 삭제 대신 개별 데이터 추가 또는 업데이트
       for (const dormitory of dormitories) {
-        await this.dormitoryRepository
-          .createQueryBuilder()
-          .insert()
-          .into(Dormitory)
-          .values(dormitory)
-          .execute();
+        // 해당 ID의 기숙사가 있는지 확인
+        const existingDormitory = await this.dormitoryRepository.findOne({
+          where: { id: dormitory.id },
+        });
+        
+        if (existingDormitory) {
+          // 이미 존재하면 업데이트
+          await this.dormitoryRepository.update(dormitory.id, dormitory);
+        } else {
+          // 존재하지 않으면 새로 추가
+          await this.dormitoryRepository
+            .createQueryBuilder()
+            .insert()
+            .into(Dormitory)
+            .values(dormitory)
+            .execute();
+        }
       }
       
-      console.log('기숙사 시드 데이터 생성 완료:', dormitories);
+      console.log('기숙사 시드 데이터 생성/업데이트 완료:', dormitories);
       return await this.dormitoryRepository.find();
     }
     

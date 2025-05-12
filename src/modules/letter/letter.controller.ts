@@ -55,10 +55,7 @@ export class LetterController {
   // 특정 편지 상세 조회
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async getLetterById(
-    @Param('id') id: string, 
-    @Req() req: RequestWithUser,
-  ) {
+  async getLetterById(@Param('id') id: string, @Req() req: RequestWithUser) {
     const userRoomNumber = req.user.roomNumber;
     return this.letterService.getLetterById(id, userRoomNumber);
   }

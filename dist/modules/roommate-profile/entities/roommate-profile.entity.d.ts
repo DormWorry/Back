@@ -8,7 +8,7 @@ export declare class RoommateProfile {
     kakaoTalkId: string;
     instagramId: string;
     introduction: string;
-    isActive: boolean;
+    dormitoryId: string;
     createdAt: Date;
     updatedAt: Date;
     user: User;

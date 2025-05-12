@@ -45,9 +45,9 @@ __decorate([
     __metadata("design:type", String)
 ], RoommateProfile.prototype, "introduction", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: true }),
-    __metadata("design:type", Boolean)
-], RoommateProfile.prototype, "isActive", void 0);
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], RoommateProfile.prototype, "dormitoryId", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

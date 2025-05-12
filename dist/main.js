@@ -12,14 +12,14 @@ async function bootstrap() {
         }
         const app = await core_1.NestFactory.create(app_module_1.AppModule);
         app.enableCors({
-            origin: '*',
+            origin: 'http://localhost:3000',
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             allowedHeaders: 'Content-Type, Accept, Authorization',
-            preflightContinue: false,
-            optionsSuccessStatus: 204,
+            credentials: true,
         });
-        await app.listen(process.env.PORT ?? 3001);
-        console.log(`애플리케이션이 포트 ${process.env.PORT ?? 3001}에서 실행 중입니다.`);
+        const port = 3001;
+        await app.listen(port, '0.0.0.0');
+        console.log(`애플리케이션이 포트 ${port}에서 실행 중입니다.`);
     }
     catch (error) {
         console.error('애플리케이션 시작 중 오류 발생:', error);
