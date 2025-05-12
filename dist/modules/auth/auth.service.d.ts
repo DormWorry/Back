@@ -11,7 +11,7 @@ export declare class AuthService {
     generateToken(user: User): {
         access_token: string;
     };
-    getKakaoToken(code: string): Promise<KakaoTokenResponse>;
+    getKakaoToken(code: string, redirectUri?: string): Promise<KakaoTokenResponse>;
     getKakaoUserInfo(accessToken: string): Promise<KakaoUserInfo>;
     updateUserProfile(userId: number, profileData: any): Promise<User>;
     updateUserProfileByKakaoId(kakaoId: string, profileData: ProfileUpdateDto): Promise<User>;

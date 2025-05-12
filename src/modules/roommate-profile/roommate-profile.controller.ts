@@ -19,13 +19,16 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { User } from '../user/entities/user.entity';
 
+// 요청에 사용자 정보를 포함하는 인터페이스 정의
 interface RequestWithUser extends Request {
   user: User;
 }
 
 @Controller('roommate-profiles')
 export class RoommateProfileController {
-  constructor(private readonly roommateProfileService: RoommateProfileService) {}
+  constructor(
+    private readonly roommateProfileService: RoommateProfileService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
@@ -33,8 +36,11 @@ export class RoommateProfileController {
     @Body() createRoommateProfileDto: CreateRoommateProfileDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.id;
-    return this.roommateProfileService.create(userId, createRoommateProfileDto);
+    const userId = String(req.user.id); // 명시적으로 string으로 변환
+    return await this.roommateProfileService.create(
+      userId,
+      createRoommateProfileDto,
+    );
   }
 
   @Get()
@@ -43,9 +49,13 @@ export class RoommateProfileController {
     @Query('preferredPersonalityTypeId') preferredPersonalityTypeId?: number,
     @Query('dormitoryId') dormitoryId?: string,
   ) {
-    return this.roommateProfileService.findAll({
-      myPersonalityTypeId: myPersonalityTypeId ? +myPersonalityTypeId : undefined,
-      preferredPersonalityTypeId: preferredPersonalityTypeId ? +preferredPersonalityTypeId : undefined,
+    return await this.roommateProfileService.findAll({
+      myPersonalityTypeId: myPersonalityTypeId 
+        ? +myPersonalityTypeId 
+        : undefined,
+      preferredPersonalityTypeId: preferredPersonalityTypeId 
+        ? +preferredPersonalityTypeId 
+        : undefined,
       dormitoryId,
     });
   }
@@ -53,11 +63,14 @@ export class RoommateProfileController {
   @Get('user/me')
   @UseGuards(AuthGuard('jwt'))
   async findMyProfile(@Req() req: RequestWithUser) {
-    const userId = req.user.id;
+    const userId = String(req.user.id); // 명시적으로 string으로 변환
     const profile = await this.roommateProfileService.findByUserId(userId);
 
     if (!profile) {
-      throw new HttpException('Profile not found for current user', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Profile not found for current user',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return profile;
@@ -68,7 +81,10 @@ export class RoommateProfileController {
     const profile = await this.roommateProfileService.findOne(id);
     
     if (!profile) {
-      throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        `Profile with ID ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
     }
     
     return profile;
@@ -81,34 +97,49 @@ export class RoommateProfileController {
     @Body() updateRoommateProfileDto: UpdateRoommateProfileDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.id;
+    const userId = String(req.user.id); // 명시적으로 string으로 변환
     const profile = await this.roommateProfileService.findOne(id);
     
     if (!profile) {
-      throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Profile not found',
+        HttpStatus.NOT_FOUND,
+      );
     }
-    
+
     if (profile.userId !== userId) {
-      throw new HttpException('You do not have permission to update this profile', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'You do not have permission to update this profile',
+        HttpStatus.FORBIDDEN,
+      );
     }
     
-    return this.roommateProfileService.update(id, updateRoommateProfileDto);
+    return await this.roommateProfileService.update(
+      id,
+      updateRoommateProfileDto,
+    );
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
-    const userId = req.user.id;
+    const userId = String(req.user.id); // 명시적으로 string으로 변환
     const profile = await this.roommateProfileService.findOne(id);
     
     if (!profile) {
-      throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Profile not found',
+        HttpStatus.NOT_FOUND,
+      );
     }
-    
+
     if (profile.userId !== userId) {
-      throw new HttpException('You do not have permission to delete this profile', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'You do not have permission to delete this profile',
+        HttpStatus.FORBIDDEN,
+      );
     }
     
-    return this.roommateProfileService.remove(id);
+    return await this.roommateProfileService.remove(id);
   }
 }

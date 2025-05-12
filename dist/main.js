@@ -12,12 +12,13 @@ async function bootstrap() {
         }
         const app = await core_1.NestFactory.create(app_module_1.AppModule);
         app.enableCors({
-            origin: 'http://localhost:3000',
+            origin: '*',
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-            allowedHeaders: 'Content-Type, Accept, Authorization',
-            credentials: true,
+            allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+            optionsSuccessStatus: 204,
+            maxAge: 86400
         });
-        const port = process.env.PORT || 3000;
+        const port = process.env.PORT || 3001;
         await app.listen(port, '0.0.0.0');
         console.log(`애플리케이션이 포트 ${port}에서 실행 중입니다.`);
     }

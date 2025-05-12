@@ -53,16 +53,18 @@ let AuthController = class AuthController {
     async exchangeKakaoToken(body, res) {
         this.setCorsHeaders(res);
         try {
-            console.log('카카오 토큰 교환 요청 받음, 코드:', body.code);
-            console.log('요청 헤더:', res.req.headers);
-            const { code } = body;
+            console.log('카카오 토큰 교환 요청 받음');
+            console.log('코드 앞 10자:', body.code.substring(0, 10) + '...');
+            console.log('Origin 헤더:', res.req.headers.origin);
+            const { code, redirectUri } = body;
             if (!code) {
                 return res.status(common_1.HttpStatus.BAD_REQUEST).json({
                     success: false,
                     message: '인증 코드가 제공되지 않았습니다.',
                 });
             }
-            const kakaoToken = await this.authService.getKakaoToken(code);
+            console.log('프론트엔드에서 전달받은 redirectUri:', redirectUri);
+            const kakaoToken = await this.authService.getKakaoToken(code, redirectUri);
             const kakaoUser = await this.authService.getKakaoUserInfo(kakaoToken.access_token);
             const user = await this.authService.findOrCreateUserByKakaoId(String(kakaoUser.id), kakaoUser.properties.nickname, kakaoUser.kakao_account?.email);
             const token = this.authService.generateToken(user);
@@ -106,7 +108,6 @@ let AuthController = class AuthController {
                 email: user.email,
                 studentId: user.studentId,
                 department: user.department,
-                dormitoryId: user.dormitoryId,
                 roomNumber: user.roomNumber,
                 gender: user.gender,
             },
@@ -191,9 +192,23 @@ let AuthController = class AuthController {
         };
     }
     setCorsHeaders(res) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Methods', '*');
-        res.header('Access-Control-Allow-Headers', '*');
+        const origin = res.req.headers.origin;
+        if (origin) {
+            res.header('Access-Control-Allow-Origin', origin);
+            res.header('Access-Control-Allow-Credentials', 'true');
+        }
+        else {
+            res.header('Access-Control-Allow-Origin', '*');
+        }
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.header('Access-Control-Expose-Headers', 'Access-Control-Allow-Origin');
+        res.header('Access-Control-Max-Age', '86400');
+        console.log('CORS 헤더 설정 완료:', {
+            origin: res.getHeader('Access-Control-Allow-Origin'),
+            methods: res.getHeader('Access-Control-Allow-Methods'),
+            credentials: res.getHeader('Access-Control-Allow-Credentials'),
+        });
     }
 };
 exports.AuthController = AuthController;

@@ -10,15 +10,17 @@ exports.RoommateProfileModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const roommate_profile_entity_1 = require("./entities/roommate-profile.entity");
+const roommate_profile_controller_1 = require("./roommate-profile.controller");
+const roommate_profile_service_1 = require("./roommate-profile.service");
 let RoommateProfileModule = class RoommateProfileModule {
 };
 exports.RoommateProfileModule = RoommateProfileModule;
 exports.RoommateProfileModule = RoommateProfileModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([roommate_profile_entity_1.RoommateProfile])],
-        controllers: [],
-        providers: [],
-        exports: [typeorm_1.TypeOrmModule],
+        controllers: [roommate_profile_controller_1.RoommateProfileController],
+        providers: [roommate_profile_service_1.RoommateProfileService],
+        exports: [typeorm_1.TypeOrmModule, roommate_profile_service_1.RoommateProfileService],
     })
 ], RoommateProfileModule);
 //# sourceMappingURL=roommate-profile.module.js.map

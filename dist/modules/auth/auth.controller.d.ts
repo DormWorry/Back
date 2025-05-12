@@ -19,6 +19,7 @@ export declare class ProfileUpdateDto {
 }
 export declare class KakaoTokenExchangeDto {
     code: string;
+    redirectUri?: string;
 }
 interface RequestWithUser extends Request {
     user: User;
@@ -40,7 +41,6 @@ export declare class AuthController {
             email: string;
             studentId: string;
             department: string;
-            dormitoryId: number;
             roomNumber: string;
             gender: import("../user/entities/user.entity").Gender;
         };
