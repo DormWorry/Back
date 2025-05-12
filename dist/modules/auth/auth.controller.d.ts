@@ -1,6 +1,5 @@
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
-import { KakaoTokenExchangeDto } from './dto/kakao-token-exchange.dto';
 import { User } from '../user/entities/user.entity';
 declare enum Gender {
     MALE = "MALE",
@@ -17,6 +16,9 @@ export declare class ProfileUpdateDto {
     roomNumber?: string;
     gender?: Gender;
     isNewUser?: boolean;
+}
+export declare class KakaoTokenExchangeDto {
+    code: string;
 }
 interface RequestWithUser extends Request {
     user: User;

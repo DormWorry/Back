@@ -13,7 +13,6 @@ import {
 import { Response, Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { KakaoTokenExchangeDto } from './dto/kakao-token-exchange.dto';
 import { User } from '../user/entities/user.entity';
 
 // Gender enum 직접 정의
@@ -34,6 +33,11 @@ export class ProfileUpdateDto {
   roomNumber?: string;
   gender?: Gender;
   isNewUser?: boolean;
+}
+
+// KakaoTokenExchangeDto 직접 정의
+export class KakaoTokenExchangeDto {
+  code: string;
 }
 
 // 요청 객체 타입 정의
