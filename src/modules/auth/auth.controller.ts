@@ -316,9 +316,23 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    // 구체적인 도메인 지정으로 CORS 정책 설정
-    res.header('Access-Control-Allow-Origin', frontendUrl);
+    const origin = res.req.headers.origin;
+
+    // 요청의 origin이 있으면 사용하고, 없으면 와일드카드
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://capstone-front-nu.vercel.app',
+      'https://capstone-front-c90869183-kwon-dohuns-projects.vercel.app',
+    ];
+
+    // origin 헤더가 있고 허용된 도메인이면 해당 origin 사용, 아니면 와일드카드
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+    } else {
+      res.header('Access-Control-Allow-Origin', '*');
+    }
+
     res.header(
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, DELETE, OPTIONS',
@@ -327,6 +341,16 @@ export class AuthController {
       'Access-Control-Allow-Headers',
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     );
-    res.header('Access-Control-Allow-Credentials', 'true');
+
+    // credentials가 true일 때는 특정 origin만 허용해야 함
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Credentials', 'true');
+    }
+
+    console.log('CORS 헤더 설정:', {
+      origin: res.getHeader('Access-Control-Allow-Origin'),
+      methods: res.getHeader('Access-Control-Allow-Methods'),
+      credentials: res.getHeader('Access-Control-Allow-Credentials'),
+    });
   }
 }
