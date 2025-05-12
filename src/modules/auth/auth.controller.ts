@@ -318,38 +318,34 @@ export class AuthController {
   private setCorsHeaders(res: Response) {
     const origin = res.req.headers.origin as string;
 
-    // 허용된 출처 목록
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://capstone-front-nu.vercel.app',
-      'https://capstone-front-c90869183-kwon-dohuns-projects.vercel.app',
-    ];
-
-    // 요청 출처가 있으면 항상 해당 출처 허용 (CORS 문제 해결)
+    // 요청 출처가 있으면 해당 출처 허용 (main.ts의 설정과 일관성 유지)
     if (origin) {
       res.header('Access-Control-Allow-Origin', origin);
-      // credentials 사용 시 필요
       res.header('Access-Control-Allow-Credentials', 'true');
     } else {
-      // 출처가 없는 경우 (서버 간 통신 등)
+      // 출처가 없는 경우 (서버 간 통신일 경우)
       res.header('Access-Control-Allow-Origin', '*');
     }
 
-    // 필요한 헤더와 메서드 설정
+    // 허용할 메서드 지정
     res.header(
       'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS',
+      'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     );
+    
+    // 허용할 헤더 지정
     res.header(
       'Access-Control-Allow-Headers',
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     );
+    
+    // 응답에서 노출할 헤더
+    res.header('Access-Control-Expose-Headers', 'Access-Control-Allow-Origin');
 
     // preflight 요청 캐싱 설정 (성능 향상)
     res.header('Access-Control-Max-Age', '86400'); // 24시간
 
-    console.log('CORS 헤더 설정:', {
+    console.log('CORS 헤더 설정 완료:', {
       origin: res.getHeader('Access-Control-Allow-Origin'),
       methods: res.getHeader('Access-Control-Allow-Methods'),
       credentials: res.getHeader('Access-Control-Allow-Credentials'),
