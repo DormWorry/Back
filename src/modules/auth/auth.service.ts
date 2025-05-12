@@ -64,13 +64,30 @@ export class AuthService {
 
   // 카카오 인증 코드를 토큰으로 교환
   async getKakaoToken(code: string): Promise<KakaoTokenResponse> {
+    // 환경 변수 유효성 검사
+    const clientId = process.env.KAKAO_CLIENT_ID;
+    const callbackUrl = process.env.KAKAO_CALLBACK_URL;
+
+    if (!clientId) {
+      console.error('KAKAO_CLIENT_ID 환경 변수가 설정되지 않았습니다.');
+      throw new Error('카카오 인증 설정이 올바르지 않습니다. (Client ID 누락)');
+    }
+
+    if (!callbackUrl) {
+      console.error('KAKAO_CALLBACK_URL 환경 변수가 설정되지 않았습니다.');
+      throw new Error('카카오 인증 설정이 올바르지 않습니다. (Callback URL 누락)');
+    }
+    
     try {
       const tokenUrl = 'https://kauth.kakao.com/oauth/token';
       const params = new URLSearchParams();
       params.append('grant_type', 'authorization_code');
-      params.append('client_id', process.env.KAKAO_CLIENT_ID || '');
-      params.append('redirect_uri', process.env.KAKAO_CALLBACK_URL || '');
+      params.append('client_id', clientId);
+      params.append('redirect_uri', callbackUrl);
       params.append('code', code);
+
+      console.log(`카카오 토큰 교환 시도: redirect_uri=${callbackUrl}`);
+
       const response = await axios.post<KakaoTokenResponse>(
         tokenUrl,
         params.toString(),
@@ -80,17 +97,34 @@ export class AuthService {
           },
         },
       );
+
+      console.log('카카오 토큰 교환 성공');
       return response.data;
     } catch (error) {
-      console.error(
-        '카카오 토큰 교환 오류:',
-        error instanceof AxiosError
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : '알 수 없는 오류',
-      );
-      throw new Error('카카오 토큰 교환 중 오류가 발생했습니다.');
+      let errorMessage = '카카오 토큰 교환 중 오류가 발생했습니다.';
+      let errorDetails = '';
+
+      if (error instanceof AxiosError) {
+        errorDetails = JSON.stringify(error.response?.data || {});
+        console.error(
+          '카카오 토큰 교환 실패 (AxiosError):',
+          `Status: ${error.response?.status}, Data: ${errorDetails}`,
+        );
+
+        // 구체적인 오류 메시지 제공
+        if (error.response?.status === 400) {
+          errorMessage = '카카오 인증 코드가 유효하지 않거나 만료되었습니다.';
+        } else if (error.response?.status === 401) {
+          errorMessage = '카카오 인증에 실패했습니다. Client ID를 확인하세요.';
+        }
+      } else if (error instanceof Error) {
+        errorDetails = error.message;
+        console.error('카카오 토큰 교환 실패 (Error):', errorDetails);
+      } else {
+        console.error('카카오 토큰 교환 실패 (Unknown):', error);
+      }
+
+      throw new Error(`${errorMessage} (세부 정보: ${errorDetails})`);
     }
   }
 
@@ -98,22 +132,34 @@ export class AuthService {
   async getKakaoUserInfo(accessToken: string): Promise<KakaoUserInfo> {
     try {
       const userInfoUrl = 'https://kapi.kakao.com/v2/user/me';
+      console.log('카카오 사용자 정보 조회 시도');
       const response = await axios.get<KakaoUserInfo>(userInfoUrl, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+      console.log('카카오 사용자 정보 조회 성공:', response.data.id);
       return response.data;
     } catch (error) {
-      console.error(
-        '카카오 사용자 정보 조회 오류:',
-        error instanceof AxiosError
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : '알 수 없는 오류',
-      );
-      throw new Error('카카오 사용자 정보 조회 중 오류가 발생했습니다.');
+      let errorMessage = '카카오 사용자 정보 조회 중 오류가 발생했습니다.';
+      let errorDetails = '';
+
+      if (error instanceof AxiosError) {
+        errorDetails = JSON.stringify(error.response?.data || {});
+        console.error(
+          '카카오 사용자 정보 조회 실패 (AxiosError):',
+          `Status: ${error.response?.status}, Data: ${errorDetails}`,
+        );
+        if (error.response?.status === 401) {
+          errorMessage = '액세스 토큰이 유효하지 않습니다.';
+        }
+      } else if (error instanceof Error) {
+        errorDetails = error.message;
+        console.error('카카오 사용자 정보 조회 실패 (Error):', errorDetails);
+      } else {
+        console.error('카카오 사용자 정보 조회 실패 (Unknown):', error);
+      }
+      throw new Error(`${errorMessage} (세부 정보: ${errorDetails})`);
     }
   }
 

@@ -111,8 +111,10 @@ export class AuthController {
     this.setCorsHeaders(res);
 
     try {
-      console.log('카카오 토큰 교환 요청 받음, 코드:', body.code); // 디버깅용
-      console.log('요청 헤더:', res.req.headers); // 요청 헤더 디버깅
+      console.log('카카오 토큰 교환 요청 받음');
+      // 디버깅용 - 민감한 정보는 일부만 표시
+      console.log('코드 앞 10자:', body.code.substring(0, 10) + '...');
+      console.log('Origin 헤더:', res.req.headers.origin);
 
       const { code } = body;
 
@@ -188,7 +190,6 @@ export class AuthController {
         email: user.email,
         studentId: user.studentId,
         department: user.department,
-        dormitoryId: user.dormitoryId,
         roomNumber: user.roomNumber,
         gender: user.gender,
       },
@@ -309,10 +310,17 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    // 와일드카드(*) 방식으로 CORS 헤더 설정
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', '*');
-    res.header('Access-Control-Allow-Headers', '*');
-    // 주의: 'Access-Control-Allow-Origin'이 '*'일 때는 'Access-Control-Allow-Credentials'를 true로 설정할 수 없음
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // 구체적인 도메인 지정으로 CORS 정책 설정
+    res.header('Access-Control-Allow-Origin', frontendUrl);
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS',
+    );
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    );
+    res.header('Access-Control-Allow-Credentials', 'true');
   }
 }
