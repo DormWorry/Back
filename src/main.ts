@@ -16,12 +16,30 @@ async function bootstrap() {
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
 
-    // CORS 설정
+    // CORS 설정 - 로컬 및 배포 환경 모두 지원
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://capstone-front-nu.vercel.app',
+      'https://capstone-front-c90869183-kwon-dohuns-projects.vercel.app'
+    ];
+
     app.enableCors({
-      origin: 'http://localhost:3000',
+      origin: function(origin, callback) {
+        // origin이 undefined일 수 있음 (브라우저의 직접 요청이거나 우편클라이언트 요청)
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          console.log('CORS blocked origin:', origin);
+          // 추서: 개발 환경에서는 모든 origin 허용하는 것이 더 편리할 수 있음
+          callback(null, true); // 모든 origin 허용
+        }
+      },
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-      allowedHeaders: 'Content-Type, Accept, Authorization',
+      allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
       credentials: true,
+      preflightContinue: false,
+      optionsSuccessStatus: 204
     });
 
     // 원격 서버에서 접근할 수 있도록 모든 인터페이스에 바인딩

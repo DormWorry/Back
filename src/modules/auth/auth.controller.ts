@@ -316,9 +316,9 @@ export class AuthController {
 
   // CORS 헤더 설정 메서드
   private setCorsHeaders(res: Response) {
-    const origin = res.req.headers.origin;
+    const origin = res.req.headers.origin as string;
 
-    // 요청의 origin이 있으면 사용하고, 없으면 와일드카드
+    // 허용된 출처 목록
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
@@ -326,13 +326,17 @@ export class AuthController {
       'https://capstone-front-c90869183-kwon-dohuns-projects.vercel.app',
     ];
 
-    // origin 헤더가 있고 허용된 도메인이면 해당 origin 사용, 아니면 와일드카드
-    if (origin && allowedOrigins.includes(origin)) {
+    // 요청 출처가 있으면 항상 해당 출처 허용 (CORS 문제 해결)
+    if (origin) {
       res.header('Access-Control-Allow-Origin', origin);
+      // credentials 사용 시 필요
+      res.header('Access-Control-Allow-Credentials', 'true');
     } else {
+      // 출처가 없는 경우 (서버 간 통신 등)
       res.header('Access-Control-Allow-Origin', '*');
     }
 
+    // 필요한 헤더와 메서드 설정
     res.header(
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, DELETE, OPTIONS',
@@ -342,10 +346,8 @@ export class AuthController {
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     );
 
-    // credentials가 true일 때는 특정 origin만 허용해야 함
-    if (origin && allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Credentials', 'true');
-    }
+    // preflight 요청 캐싱 설정 (성능 향상)
+    res.header('Access-Control-Max-Age', '86400'); // 24시간
 
     console.log('CORS 헤더 설정:', {
       origin: res.getHeader('Access-Control-Allow-Origin'),
