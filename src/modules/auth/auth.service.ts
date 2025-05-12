@@ -8,7 +8,7 @@ import {
   KakaoTokenResponse,
   KakaoUserInfo,
 } from './interfaces/kakao.interfaces';
-import { ProfileUpdateDto } from './dto/profile-update.dto';
+import { ProfileUpdateDto } from './auth.controller';
 
 @Injectable()
 export class AuthService {

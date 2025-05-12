@@ -12,12 +12,20 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthController = void 0;
+exports.AuthController = exports.ProfileUpdateDto = void 0;
 const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 const auth_service_1 = require("./auth.service");
-const profile_update_dto_1 = require("./dto/profile-update.dto");
 const kakao_token_exchange_dto_1 = require("./dto/kakao-token-exchange.dto");
+var Gender;
+(function (Gender) {
+    Gender["MALE"] = "MALE";
+    Gender["FEMALE"] = "FEMALE";
+    Gender["OTHER"] = "OTHER";
+})(Gender || (Gender = {}));
+class ProfileUpdateDto {
+}
+exports.ProfileUpdateDto = ProfileUpdateDto;
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -238,7 +246,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [profile_update_dto_1.ProfileUpdateDto, Object]),
+    __metadata("design:paramtypes", [ProfileUpdateDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "updateProfile", null);
 __decorate([

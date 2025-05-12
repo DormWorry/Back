@@ -2,7 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { KakaoTokenResponse, KakaoUserInfo } from './interfaces/kakao.interfaces';
-import { ProfileUpdateDto } from './dto/profile-update.dto';
+import { ProfileUpdateDto } from './auth.controller';
 export declare class AuthService {
     private readonly usersRepository;
     private readonly jwtService;
