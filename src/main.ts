@@ -24,8 +24,9 @@ async function bootstrap() {
       credentials: true,
     });
 
-    // 모든 인터페이스에 바인딩하기 위해 '0.0.0.0' 추가
-    const port = 3001;
+    // 원격 서버에서 접근할 수 있도록 모든 인터페이스에 바인딩
+    // 환경 변수에서 포트를 가져오거나 기본값으로 3000 사용
+    const port = process.env.PORT || 3000;
     await app.listen(port, '0.0.0.0');
     console.log(`애플리케이션이 포트 ${port}에서 실행 중입니다.`);
   } catch (error) {
