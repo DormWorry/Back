@@ -1,0 +1,12 @@
+name: nest-backend
+app: node
+
+options:
+  env:
+    - name: PORT
+      value: 3000
+  install: npm install
+  build: npm run build
+  start: npm run start:prod
+  ports: 3000
+  root: ./
