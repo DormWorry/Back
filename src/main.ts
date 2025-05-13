@@ -21,11 +21,8 @@ async function bootstrap() {
     app.use((req: Request, res: Response, next: NextFunction) => {
       // 요청 메서드가 OPTIONS이면
       if (req.method === 'OPTIONS') {
-        // 명시적으로 허용할 출처(origin) 설정
-        res.header(
-          'Access-Control-Allow-Origin',
-          'https://capstone-front-nu.vercel.app',
-        );
+        // 모든 출처 허용으로 임시 변경
+        res.header('Access-Control-Allow-Origin', '*');
         // 인증 헤더 등을 포함한 쿠키 사용 허용
         res.header('Access-Control-Allow-Credentials', 'true');
         // 허용할 HTTP 메서드 설정
@@ -49,7 +46,7 @@ async function bootstrap() {
 
     // 모든 원본에서 요청 허용 (개발 환경에서만 사용)
     app.enableCors({
-      origin: ['https://capstone-front-nu.vercel.app'], // ← 명시적 도메인 지정
+      origin: true, // 모든 출처 허용
       credentials: true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders:
