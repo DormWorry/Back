@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { initializeDatabase } from './database/init-db';
+import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   try {
@@ -15,6 +16,36 @@ async function bootstrap() {
 
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
+
+    // OPTIONS 요청을 위한 특별 미들웨어 추가 (Express 직접 사용)
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      // 요청 메서드가 OPTIONS이면
+      if (req.method === 'OPTIONS') {
+        // 명시적으로 허용할 출처(origin) 설정
+        res.header(
+          'Access-Control-Allow-Origin',
+          'https://capstone-front-nu.vercel.app',
+        );
+        // 인증 헤더 등을 포함한 쿠키 사용 허용
+        res.header('Access-Control-Allow-Credentials', 'true');
+        // 허용할 HTTP 메서드 설정
+        res.header(
+          'Access-Control-Allow-Methods',
+          'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        );
+        // 허용할 헤더 설정
+        res.header(
+          'Access-Control-Allow-Headers',
+          'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+        );
+        // 캐싱 시간 설정 (24시간)
+        res.header('Access-Control-Max-Age', '86400');
+        // OPTIONS 요청에 204 응답 (No Content)
+        return res.status(204).send();
+      }
+      // OPTIONS 외 다른 요청은 다음 미들웨어로 전달
+      next();
+    });
 
     // 모든 원본에서 요청 허용 (개발 환경에서만 사용)
     app.enableCors({
