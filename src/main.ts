@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { initializeDatabase } from './database/init-db';
-import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   try {
@@ -17,37 +16,15 @@ async function bootstrap() {
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
 
-    // OPTIONS 요청을 위한 전역 핸들러 추가
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      if (req.method === 'OPTIONS') {
-        res.header(
-          'Access-Control-Allow-Origin',
-          'https://capstone-front-nu.vercel.app',
-        );
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.header(
-          'Access-Control-Allow-Methods',
-          'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        );
-        res.header(
-          'Access-Control-Allow-Headers',
-          'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-        );
-        res.header('Access-Control-Max-Age', '86400'); // 24시간 캐싱
-        return res.sendStatus(204); // No Content 응답
-      }
-      next();
-    });
-
-    // 모든 출처에서의 접근을 허용하는 간단한 CORS 설정
+    // 모든 원본에서 요청 허용 (개발 환경에서만 사용)
     app.enableCors({
-      origin: ['http://localhost:3000', 'https://capstone-front-nu.vercel.app'],
+      origin: ['https://capstone-front-nu.vercel.app'], // ← 명시적 도메인 지정
+      credentials: true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders:
         'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-      credentials: true,
       optionsSuccessStatus: 204,
-      maxAge: 86400, // preflight 요청 캐싱 시간 24시간
+      maxAge: 86400,
     });
 
     // 원격 서버에서 접근할 수 있도록 모든 인터페이스에 바인딩
