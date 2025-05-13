@@ -71,6 +71,12 @@ export class User {
   @Column({ default: true })
   isNewUser: boolean;
 
+  @Column({ nullable: true })
+  profileImage: string;
+
+  @Column({ nullable: true })
+  thumbnailImage: string;
+
   // Relations
   @ManyToOne(() => Dormitory)
   @JoinColumn({ name: 'dormitoryId' })

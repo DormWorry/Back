@@ -85,6 +85,14 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isNewUser", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "profileImage", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "thumbnailImage", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => dormitory_entity_1.Dormitory),
     (0, typeorm_1.JoinColumn)({ name: 'dormitoryId' }),
     __metadata("design:type", dormitory_entity_1.Dormitory)

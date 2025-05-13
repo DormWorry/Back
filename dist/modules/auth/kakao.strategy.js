@@ -26,7 +26,10 @@ let KakaoStrategy = class KakaoStrategy extends (0, passport_1.PassportStrategy)
         const kakaoId = profile.id.toString();
         const nickname = profile._json?.properties?.nickname || 'User';
         const email = profile._json?.kakao_account?.email;
-        const user = await this.authService.findOrCreateUserByKakaoId(kakaoId, nickname, email);
+        const profileImage = profile._json?.properties?.profile_image || null;
+        const thumbnailImage = profile._json?.properties?.thumbnail_image || null;
+        console.log('카카오 프로필 이미지:', profileImage);
+        const user = await this.authService.findOrCreateUserByKakaoId(kakaoId, nickname, email, profileImage, thumbnailImage);
         return done(null, user);
     }
 };

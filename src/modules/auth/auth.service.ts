@@ -22,6 +22,8 @@ export class AuthService {
     kakaoId: string,
     nickname: string,
     email?: string,
+    profileImage?: string,
+    thumbnailImage?: string,
   ): Promise<User> {
     // 카카오 아이디로 사용자 검색
     let user = await this.usersRepository.findOne({ where: { kakaoId } });
@@ -37,12 +39,23 @@ export class AuthService {
         kakaoId,
         email,
         nickname,
+        profileImage,
+        thumbnailImage,
         isNewUser: true, // 새 사용자 표시 (추가 정보 입력 필요)
       });
       await this.usersRepository.save(user);
     } else if (!user.kakaoId) {
-      // 기존 사용자에 카카오 아이디 연결
+      // 기존 사용자에 카카오 아이디와 프로필 정보 연결
       user.kakaoId = kakaoId;
+      
+      // 프로필 이미지가 있는 경우에만 업데이트
+      if (profileImage) {
+        user.profileImage = profileImage;
+      }
+      if (thumbnailImage) {
+        user.thumbnailImage = thumbnailImage;
+      }
+      
       await this.usersRepository.save(user);
     }
 

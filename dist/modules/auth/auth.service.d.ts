@@ -7,7 +7,7 @@ export declare class AuthService {
     private readonly usersRepository;
     private readonly jwtService;
     constructor(usersRepository: Repository<User>, jwtService: JwtService);
-    findOrCreateUserByKakaoId(kakaoId: string, nickname: string, email?: string): Promise<User>;
+    findOrCreateUserByKakaoId(kakaoId: string, nickname: string, email?: string, profileImage?: string, thumbnailImage?: string): Promise<User>;
     generateToken(user: User): {
         access_token: string;
     };

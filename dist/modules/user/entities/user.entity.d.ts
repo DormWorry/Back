@@ -25,6 +25,8 @@ export declare class User {
     createdAt: Date;
     updatedAt: Date;
     isNewUser: boolean;
+    profileImage: string;
+    thumbnailImage: string;
     dormitory: Dormitory;
     sentLetters: Letter[];
     receivedLetters: Letter[];

@@ -24,7 +24,7 @@ let AuthService = class AuthService {
         this.usersRepository = usersRepository;
         this.jwtService = jwtService;
     }
-    async findOrCreateUserByKakaoId(kakaoId, nickname, email) {
+    async findOrCreateUserByKakaoId(kakaoId, nickname, email, profileImage, thumbnailImage) {
         let user = await this.usersRepository.findOne({ where: { kakaoId } });
         if (!user && email) {
             user = await this.usersRepository.findOne({ where: { email } });
@@ -34,12 +34,20 @@ let AuthService = class AuthService {
                 kakaoId,
                 email,
                 nickname,
+                profileImage,
+                thumbnailImage,
                 isNewUser: true,
             });
             await this.usersRepository.save(user);
         }
         else if (!user.kakaoId) {
             user.kakaoId = kakaoId;
+            if (profileImage) {
+                user.profileImage = profileImage;
+            }
+            if (thumbnailImage) {
+                user.thumbnailImage = thumbnailImage;
+            }
             await this.usersRepository.save(user);
         }
         return user;
