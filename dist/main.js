@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const init_db_1 = require("./database/init-db");
+const platform_socket_io_1 = require("@nestjs/platform-socket.io");
 async function bootstrap() {
     try {
         const dbInitialized = await (0, init_db_1.initializeDatabase)();
@@ -11,6 +12,7 @@ async function bootstrap() {
             process.exit(1);
         }
         const app = await core_1.NestFactory.create(app_module_1.AppModule);
+        app.useWebSocketAdapter(new platform_socket_io_1.IoAdapter(app));
         app.use((req, res, next) => {
             if (req.method === 'OPTIONS') {
                 res.header('Access-Control-Allow-Origin', '*');

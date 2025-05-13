@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { initializeDatabase } from './database/init-db';
 import { Request, Response, NextFunction } from 'express';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   try {
@@ -16,6 +17,9 @@ async function bootstrap() {
 
     // NestJS 애플리케이션 생성
     const app = await NestFactory.create(AppModule);
+    
+    // Socket.io 어댑터 설정
+    app.useWebSocketAdapter(new IoAdapter(app));
 
     // OPTIONS 요청을 위한 특별 미들웨어 추가 (Express 직접 사용)
     app.use((req: Request, res: Response, next: NextFunction) => {
