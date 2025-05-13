@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Patch, Delete, Param, UseGuards, Req } from '@nestjs/common';
 import { DeliveryParticipantService } from './delivery-participant.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Request } from 'express';
+import { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
 
 @Controller('delivery-participant')
 export class DeliveryParticipantController {
@@ -9,8 +9,8 @@ export class DeliveryParticipantController {
 
   @UseGuards(JwtAuthGuard)
   @Post('join')
-  async joinRoom(@Req() req: Request, @Body() joinData: { deliveryRoomId: string, orderDetails?: string, amount?: number }) {
-    const userId = req.user['id'];
+  async joinRoom(@Req() req: RequestWithUser, @Body() joinData: { deliveryRoomId: string, orderDetails?: string, amount?: number }) {
+    const userId = Number(req.user.id);
     return this.participantService.joinRoom({
       userId,
       deliveryRoomId: joinData.deliveryRoomId,
@@ -21,8 +21,8 @@ export class DeliveryParticipantController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':roomId/leave')
-  async leaveRoom(@Req() req: Request, @Param('roomId') roomId: string) {
-    const userId = req.user['id'];
+  async leaveRoom(@Req() req: RequestWithUser, @Param('roomId') roomId: string) {
+    const userId = Number(req.user.id);
     await this.participantService.leaveRoom(userId, roomId);
     return { success: true };
   }
@@ -30,11 +30,11 @@ export class DeliveryParticipantController {
   @UseGuards(JwtAuthGuard)
   @Patch(':roomId/update-order')
   async updateOrderDetails(
-    @Req() req: Request,
+    @Req() req: RequestWithUser,
     @Param('roomId') roomId: string,
     @Body() updateData: { orderDetails: string, amount: number }
   ) {
-    const userId = req.user['id'];
+    const userId = Number(req.user.id);
     return this.participantService.updateOrderDetails(
       userId,
       roomId,
@@ -45,8 +45,8 @@ export class DeliveryParticipantController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':roomId/mark-paid')
-  async markAsPaid(@Req() req: Request, @Param('roomId') roomId: string) {
-    const userId = req.user['id'];
+  async markAsPaid(@Req() req: RequestWithUser, @Param('roomId') roomId: string) {
+    const userId = Number(req.user.id);
     return this.participantService.markAsPaid(userId, roomId);
   }
 }

@@ -6,10 +6,10 @@ import { DeliveryRoom } from '../delivery-room/entities/delivery-room.entity';
 import { User } from '../user/entities/user.entity';
 
 interface JoinRoomParams {
-  userId: string;
+  userId: number;
   deliveryRoomId: string;
-  orderDetails: string;
-  amount: number;
+  orderDetails?: string;
+  amount?: number;
 }
 
 @Injectable()
@@ -47,7 +47,7 @@ export class DeliveryParticipantService {
     // 이미 참여중인지 확인
     const existingParticipant = await this.participantRepository.findOne({
       where: {
-        userId,
+        userId: userId.toString(),
         deliveryRoomId,
       }
     });
@@ -58,19 +58,20 @@ export class DeliveryParticipantService {
 
     // 새로운 참여자 생성
     const newParticipant = this.participantRepository.create({
-      userId,
+      userId: userId.toString(),
       deliveryRoomId,
-      orderDetails,
-      amount,
+      orderDetails: orderDetails || '',
+      amount: amount || 0,
+      isPaid: false,
     });
 
     return this.participantRepository.save(newParticipant);
   }
 
-  async leaveRoom(userId: string, roomId: string): Promise<void> {
+  async leaveRoom(userId: number, roomId: string): Promise<void> {
     const participant = await this.participantRepository.findOne({
       where: {
-        userId,
+        userId: userId.toString(),
         deliveryRoomId: roomId,
       }
     });
@@ -84,14 +85,14 @@ export class DeliveryParticipantService {
   }
 
   async updateOrderDetails(
-    userId: string,
+    userId: number,
     roomId: string,
     orderDetails: string,
     amount: number,
   ): Promise<DeliveryParticipant> {
     const participant = await this.participantRepository.findOne({
       where: {
-        userId,
+        userId: userId.toString(),
         deliveryRoomId: roomId,
       }
     });
@@ -113,10 +114,10 @@ export class DeliveryParticipantService {
     });
   }
 
-  async markAsPaid(userId: string, roomId: string): Promise<DeliveryParticipant> {
+  async markAsPaid(userId: number, roomId: string): Promise<DeliveryParticipant> {
     const participant = await this.participantRepository.findOne({
       where: {
-        userId,
+        userId: userId.toString(),
         deliveryRoomId: roomId,
       }
     });

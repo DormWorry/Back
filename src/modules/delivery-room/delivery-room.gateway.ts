@@ -56,7 +56,7 @@ export class DeliveryRoomGateway implements OnGatewayConnection, OnGatewayDiscon
   }
 
   handleDisconnect(client: Socket) {
-    let disconnectedUserId = null;
+    let disconnectedUserId: string | null = null;
     
     for (const [userId, socketId] of this.connectedClients.entries()) {
       if (socketId === client.id) {

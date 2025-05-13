@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, Req } fro
 import { DeliveryRoomService } from './delivery-room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Request } from 'express';
+import { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
 
 @Controller('delivery-room')
 export class DeliveryRoomController {
@@ -10,8 +10,8 @@ export class DeliveryRoomController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createRoom(@Req() req: Request, @Body() createRoomDto: CreateRoomDto) {
-    const userId = req.user['id'];
+  async createRoom(@Req() req: RequestWithUser, @Body() createRoomDto: CreateRoomDto) {
+    const userId = Number(req.user.id);
     return this.deliveryRoomService.createRoom(userId, createRoomDto);
   }
 
@@ -27,15 +27,15 @@ export class DeliveryRoomController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/close')
-  async closeRoom(@Req() req: Request, @Param('id') id: string) {
-    const userId = req.user['id'];
+  async closeRoom(@Req() req: RequestWithUser, @Param('id') id: string) {
+    const userId = Number(req.user.id);
     return this.deliveryRoomService.closeRoom(id, userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deleteRoom(@Req() req: Request, @Param('id') id: string) {
-    const userId = req.user['id'];
+  async deleteRoom(@Req() req: RequestWithUser, @Param('id') id: string) {
+    const userId = Number(req.user.id);
     await this.deliveryRoomService.deleteRoom(id, userId);
     return { success: true };
   }

@@ -14,14 +14,14 @@ export class DeliveryRoomService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createRoom(userId: string, createRoomDto: CreateRoomDto): Promise<DeliveryRoom> {
+  async createRoom(userId: number, createRoomDto: CreateRoomDto): Promise<DeliveryRoom> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
     const newRoom = this.deliveryRoomRepository.create({
-      creatorId: userId,
+      creatorId: userId.toString(),
       restaurantName: createRoomDto.restaurantName,
       category: createRoomDto.category,
       minimumOrderAmount: createRoomDto.minimumOrderAmount,
@@ -64,7 +64,7 @@ export class DeliveryRoomService {
     return room;
   }
 
-  async closeRoom(roomId: string, userId: string): Promise<DeliveryRoom> {
+  async closeRoom(roomId: string, userId: number): Promise<DeliveryRoom> {
     const room = await this.deliveryRoomRepository.findOne({ 
       where: { id: roomId } 
     });
@@ -73,7 +73,7 @@ export class DeliveryRoomService {
       throw new NotFoundException('주문방을 찾을 수 없습니다.');
     }
 
-    if (room.creatorId !== userId) {
+    if (room.creatorId !== userId.toString()) {
       throw new Error('방장만 주문을 완료할 수 있습니다.');
     }
 
@@ -83,7 +83,7 @@ export class DeliveryRoomService {
     return this.deliveryRoomRepository.save(room);
   }
 
-  async deleteRoom(roomId: string, userId: string): Promise<void> {
+  async deleteRoom(roomId: string, userId: number): Promise<void> {
     const room = await this.deliveryRoomRepository.findOne({ 
       where: { id: roomId } 
     });
@@ -92,7 +92,7 @@ export class DeliveryRoomService {
       throw new NotFoundException('주문방을 찾을 수 없습니다.');
     }
 
-    if (room.creatorId !== userId) {
+    if (room.creatorId !== userId.toString()) {
       throw new Error('방장만 주문방을 삭제할 수 있습니다.');
     }
 

@@ -16,7 +16,7 @@ export class DeliveryChatService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createMessage(userId: string, roomId: string, message: string): Promise<DeliveryChat> {
+  async createMessage(userId: number, roomId: string, message: string): Promise<DeliveryChat> {
     // 방이 존재하는지 확인
     const room = await this.roomRepository.findOne({ 
       where: { id: roomId } 
@@ -37,7 +37,7 @@ export class DeliveryChatService {
 
     // 새 메시지 생성
     const newMessage = this.chatRepository.create({
-      userId,
+      userId: userId.toString(),
       deliveryRoomId: roomId,
       message,
     });
