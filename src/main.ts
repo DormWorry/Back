@@ -57,8 +57,8 @@ async function bootstrap() {
     });
 
     // 원격 서버에서 접근할 수 있도록 모든 인터페이스에 바인딩
-    // 환경 변수에서 포트를 가져오거나 기본값으로 3000 사용
-    const port = process.env.PORT || 3001;
+    // CloudType은 3000번 포트로 요청을 전달하므로, 3000번 포트로 변경
+    const port = process.env.PORT || 3000;
     await app.listen(port, '0.0.0.0');
     console.log(`애플리케이션이 포트 ${port}에서 실행 중입니다.`);
   } catch (error) {

@@ -30,7 +30,7 @@ async function bootstrap() {
             optionsSuccessStatus: 204,
             maxAge: 86400,
         });
-        const port = process.env.PORT || 3001;
+        const port = process.env.PORT || 3000;
         await app.listen(port, '0.0.0.0');
         console.log(`애플리케이션이 포트 ${port}에서 실행 중입니다.`);
     }
