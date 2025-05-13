@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { DeliveryRoom, DeliveryRoomStatus } from './entities/delivery-room.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { User } from '../user/entities/user.entity';
+import { DeliveryParticipant } from '../delivery-participant/entities/delivery-participant.entity';
 
 @Injectable()
 export class DeliveryRoomService {
@@ -12,6 +13,8 @@ export class DeliveryRoomService {
     private readonly deliveryRoomRepository: Repository<DeliveryRoom>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(DeliveryParticipant)
+    private readonly participantRepository: Repository<DeliveryParticipant>,
   ) {}
 
   async createRoom(userId: number, createRoomDto: CreateRoomDto): Promise<DeliveryRoom> {
@@ -30,7 +33,21 @@ export class DeliveryRoomService {
       status: DeliveryRoomStatus.OPEN,
     });
 
-    return this.deliveryRoomRepository.save(newRoom);
+    // 방 저장
+    const savedRoom = await this.deliveryRoomRepository.save(newRoom);
+    
+    // 방 생성자를 방 참여자로 추가
+    const participant = this.participantRepository.create({
+      userId: userId.toString(),
+      deliveryRoomId: savedRoom.id,
+      orderDetails: '',
+      amount: 0,
+      isPaid: false,
+    });
+    
+    await this.participantRepository.save(participant);
+    
+    return savedRoom;
   }
 
   async getRooms(category?: string): Promise<DeliveryRoom[]> {
