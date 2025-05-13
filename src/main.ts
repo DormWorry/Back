@@ -23,8 +23,9 @@ async function bootstrap() {
       if (req.method === 'OPTIONS') {
         // 모든 출처 허용으로 임시 변경
         res.header('Access-Control-Allow-Origin', '*');
-        // 인증 헤더 등을 포함한 쿠키 사용 허용
-        res.header('Access-Control-Allow-Credentials', 'true');
+        // 동일출처(Origin)에서 인증 쿠키 허용하려면 '*'가 아닌 구체적인 도메인이 필요함
+        // Vercel에서는 현재 오류 때문에 임시로 허용하지 않음
+        res.header('Access-Control-Allow-Credentials', 'false');
         // 허용할 HTTP 메서드 설정
         res.header(
           'Access-Control-Allow-Methods',
@@ -47,7 +48,7 @@ async function bootstrap() {
     // 모든 원본에서 요청 허용 (개발 환경에서만 사용)
     app.enableCors({
       origin: true, // 모든 출처 허용
-      credentials: true,
+      credentials: false, // 모든 출처를 허용할 때는 false로 해야 함
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders:
         'Origin, X-Requested-With, Content-Type, Accept, Authorization',

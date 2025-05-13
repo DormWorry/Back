@@ -14,7 +14,7 @@ async function bootstrap() {
         app.use((req, res, next) => {
             if (req.method === 'OPTIONS') {
                 res.header('Access-Control-Allow-Origin', '*');
-                res.header('Access-Control-Allow-Credentials', 'true');
+                res.header('Access-Control-Allow-Credentials', 'false');
                 res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
                 res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
                 res.header('Access-Control-Max-Age', '86400');
@@ -24,7 +24,7 @@ async function bootstrap() {
         });
         app.enableCors({
             origin: true,
-            credentials: true,
+            credentials: false,
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
             optionsSuccessStatus: 204,
