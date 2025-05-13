@@ -53,7 +53,9 @@ export class DeliveryParticipantService {
     });
 
     if (existingParticipant) {
-      throw new ConflictException('이미 이 주문방에 참여 중입니다.');
+      // 이미 참여 중이라면 409 오류 대신 기존 참여 정보 반환
+      console.log(`사용자 ${userId}는 이미 방 ${deliveryRoomId}에 참여 중입니다.`);
+      return existingParticipant;
     }
 
     // 새로운 참여자 생성
