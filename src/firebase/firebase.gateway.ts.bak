@@ -1,33 +1,40 @@
-import { 
-  ConnectedSocket, 
-  MessageBody, 
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage, 
-  WebSocketGateway, 
-  WebSocketServer 
+  OnGatewayInit,
+  ConnectedSocket,
+  MessageBody,
 } from '@nestjs/websockets';
-import { FirebaseService } from './firebase.service';
 import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
+import { FirebaseService } from './firebase.service';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
-    credentials: true,
+    methods: ['GET', 'POST'],
+    credentials: false,
   },
-  namespace: '/chat',
+  namespace: 'chat',
 })
-export class FirebaseGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class FirebaseGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(FirebaseGateway.name);
   
-  // 활성 사용자 관리 (방 ID -> 사용자 ID 집합)
-  private activeUsers = new Map<string, Set<string>>();
+  @WebSocketServer() server: Server;
   
-  @WebSocketServer()
-  private server: Server;
+  // 활성 사용자 연결 추적을 위한 맵
+  private readonly activeUsers = new Map<string, Set<string>>();
   
   constructor(private readonly firebaseService: FirebaseService) {}
+  
+  afterInit(server: Server) {
+    this.logger.log('채팅 WebSocket 게이트웨이가 초기화되었습니다.');
+  }
   
   handleConnection(client: Socket) {
     const userId = client.handshake.query.userId as string;
@@ -247,9 +254,8 @@ export class FirebaseGateway implements OnGatewayConnection, OnGatewayDisconnect
       const allParticipants = await this.firebaseService.getRoomParticipants(roomId);
       
       // 현재 활성 상태인 사용자 ID 집합
-      const userSet = this.activeUsers.get(roomId);
-      const activeUserIds = (this.activeUsers.has(roomId) && userSet) 
-        ? Array.from(userSet) 
+      const activeUserIds = this.activeUsers.has(roomId)
+        ? Array.from(this.activeUsers.get(roomId))
         : [];
       
       // 참여자 목록에 활성 상태 추가
@@ -278,9 +284,8 @@ export class FirebaseGateway implements OnGatewayConnection, OnGatewayDisconnect
       const allParticipants = await this.firebaseService.getRoomParticipants(roomId);
       
       // 현재 활성 상태인 사용자 ID 집합
-      const userSet = this.activeUsers.get(roomId);
-      const activeUserIds = (this.activeUsers.has(roomId) && userSet) 
-        ? Array.from(userSet) 
+      const activeUserIds = this.activeUsers.has(roomId)
+        ? Array.from(this.activeUsers.get(roomId))
         : [];
       
       // 참여자 목록에 활성 상태 추가
