@@ -122,7 +122,7 @@ export class FirebaseService implements OnModuleInit {
       const limitCount = typeof limit === 'string' ? parseInt(limit, 10) : limit || 30;
       
       const messagesRef = this.db.collection(`rooms/${roomId}/messages`);
-      const snapshot = await messagesRef.orderBy('timestamp', 'desc')
+      const snapshot = await messagesRef.orderBy('timestamp', 'asc')
         .limit(limitCount)
         .get();
       
