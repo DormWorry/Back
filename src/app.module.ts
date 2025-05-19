@@ -13,6 +13,7 @@ import { DeliveryChatModule } from './modules/delivery-chat/delivery-chat.module
 import { DormitoryModule } from './modules/dormitory/dormitory.module';
 import { DormitoryAnnouncementModule } from './modules/dormitory-announcement/dormitory-announcement.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { AuthModule } from './modules/auth/auth.module';
     DormitoryModule,
     DormitoryAnnouncementModule,
     AuthModule,
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
