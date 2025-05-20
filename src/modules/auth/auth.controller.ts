@@ -332,13 +332,13 @@ export class AuthController {
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     );
-    
+
     // 허용할 헤더 지정
     res.header(
       'Access-Control-Allow-Headers',
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     );
-    
+
     // 응답에서 노출할 헤더
     res.header('Access-Control-Expose-Headers', 'Access-Control-Allow-Origin');
 
